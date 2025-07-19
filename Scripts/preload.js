@@ -7,7 +7,6 @@ contextBridge.exposeInMainWorld("versions", {
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
-   ping: () => ipcRenderer.invoke("ping"),
    createMasterPassword: (passwordInput) =>
       ipcRenderer.invoke("create-master-password", { passwordInput }),
    login: (passwordInput) =>
