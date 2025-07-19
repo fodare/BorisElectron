@@ -6,7 +6,7 @@ import {
    isPasswordValid,
    writeMasterPassword,
    readMasterPassword,
-} from "./Scripts/ .js";
+} from "./Scripts/credentials.js";
 
 let mainWindow = null;
 const APP_DIR = app.getAppPath();
@@ -43,7 +43,10 @@ app.on("activate", () => {
 
 ipcMain.handle("create-master-password", (event, { passwordInput }) => {
    if (masterPasswordExist()) {
-      return { success: false, message: "Master password already exists." };
+      return {
+         success: false,
+         message: "Master password already exists. Please login instead.",
+      };
    }
    try {
       const encrypted = encryptValidationToken(passwordInput);
