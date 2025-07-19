@@ -19,7 +19,11 @@ async function handleLogin() {
       return;
    }
    const loginStatus = await window.electronAPI.login(passwordInput);
-   console.log(loginStatus);
+   if (!loginStatus.success) {
+      setStatusMessage(loginStatus.message);
+   } else {
+      setStatusMessage(loginStatus.message);
+   }
 }
 
 async function handleRegister() {
@@ -31,7 +35,11 @@ async function handleRegister() {
    const registrationStatus = await window.electronAPI.createMasterPassword(
       passwordInput
    );
-   console.log(registrationStatus);
+   if (!registrationStatus.success) {
+      setStatusMessage(registrationStatus.message);
+   } else {
+      setStatusMessage(registrationStatus.message);
+   }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
