@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
    createMasterPassword: (passwordInput) =>
       ipcRenderer.invoke("create-master-password", { passwordInput }),
    login: (passwordInput) =>
-      ipcRenderer.invoke("verifyMasterPassword", { passwordInput }),
+      ipcRenderer.invoke("verify-master-password", { passwordInput }),
+   checkForMasterPassword: () => ipcRenderer.invoke("has-master-password"),
 });
