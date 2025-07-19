@@ -66,6 +66,10 @@ function readMasterPassword() {
    return encrypted;
 }
 
+// function deleteMasterPassword() {
+//    if (fs.existsSync(MASTER_PASS_FILE)) fs.unlinkSync(MASTER_PASS_FILE);
+// }
+
 export {
    masterPasswordExist,
    encryptValidationToken,
