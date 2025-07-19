@@ -93,7 +93,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const loginBtn = document.getElementById("loginBtn");
       const registerBtn = document.getElementById("registerBtn");
 
-      loginBtn?.addEventListener("click", handleLogin);
+      loginBtn?.addEventListener("click", () => {
+         loginBtn.disabled = true;
+         handleLogin().finally(() => (loginBtn.disabled = false));
+      });
       registerBtn?.addEventListener("click", handleRegister);
 
       if (masterPasswordExist) {
