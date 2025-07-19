@@ -1,0 +1,29 @@
+{
+  "name": "boris",
+  "version": "0.0.1",
+  "description": "Local electron app to help manage credentials, track finances...",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "watch": "nodemon --exec electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fodare/BorisElectron.git"
+  },
+  "keywords": [
+    "power-app"
+  ],
+  "author": "open-ops",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fodare/BorisElectron/issues"
+  },
+  "homepage": "https://github.com/fodare/BorisElectron#readme",
+  "devDependencies": {
+    "electron": "^37.2.3",
+    "nodemon": "^3.1.10"
+  }
+}
