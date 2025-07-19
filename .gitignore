@@ -141,3 +141,4 @@ vite.config.ts.timestamp-*
 # Node modules
 node_modules
 Data/password.enc
+package-lock.json
