@@ -95,3 +95,7 @@ ipcMain.handle("verify-master-password", (event, { passwordInput }) => {
 ipcMain.handle("has-master-password", (event) => {
    return masterPasswordExist();
 });
+
+ipcMain.on("navigate-to", (event, page) => {
+   mainWindow.loadFile(path.join(APP_DIR, `/Pages/${page}`));
+});

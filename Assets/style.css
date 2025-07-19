@@ -4,6 +4,9 @@ body{
     display: block;
     background-color: var(--dark-backgroud);
     color: var(--text-color);
+    width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* Colors */
@@ -21,8 +24,43 @@ body{
 
 /* Prefabs */
 
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.nav-link {
+  color: #cfcfcf !important;
+}
+
+.nav-link:hover {
+  color: #fff !important;
+  border-bottom: .5px solid var(--indigo-light);
+}
+
+.nav-link.active {
+  color: var(--indigo-light) !important;
+}
+
+.content-div{
+    padding-top: 1rem;
+}
+
+/* Navbar styling */
+
+.nav-div {
+  padding-left: 0;
+  padding-right: 0;
+  background-color: var(--dark-backgroud) !important;
+}
+
+.nav-container{
+    padding: 1rem 0 0 0 !important;
+    border-right: .5px solid var(--indigo-light) !important;
+}
 
 /* Login styling */
+
 .masterPasswordPrompt{
     display: flex;
    flex-direction: column;

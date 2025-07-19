@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
    login: (passwordInput) =>
       ipcRenderer.invoke("verify-master-password", { passwordInput }),
    checkForMasterPassword: () => ipcRenderer.invoke("has-master-password"),
+   navigateTo: (page) => ipcRenderer.send("navigate-to", page),
 });
