@@ -63,7 +63,7 @@ ipcMain.handle("create-master-password", (event, { passwordInput }) => {
    }
 });
 
-ipcMain.handle("verifyMasterPassword", (event, { passwordInput }) => {
+ipcMain.handle("verify-master-password", (event, { passwordInput }) => {
    if (!masterPasswordExist()) {
       return {
          success: false,
@@ -90,4 +90,8 @@ ipcMain.handle("verifyMasterPassword", (event, { passwordInput }) => {
          message: `Error verifying master password: ${error.message}`,
       };
    }
+});
+
+ipcMain.handle("has-master-password", (event) => {
+   return masterPasswordExist();
 });
