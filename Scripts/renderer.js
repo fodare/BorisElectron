@@ -27,6 +27,7 @@ async function handleLogin() {
       setStatusMessage(loginStatus.message);
    } else {
       setStatusMessage(loginStatus.message);
+      await window.electronAPI.navigateTo("credentials.html");
    }
 }
 
@@ -46,9 +47,47 @@ async function handleRegister() {
    }
 }
 
+async function injectNavbar() {
+   const navDiv = document.getElementById("nav-div");
+   if (!navDiv) return;
+
+   try {
+      const response = await fetch("../Components/navbar.html");
+      if (!response.ok) throw new Error("Navbar fetch failed");
+
+      const navbarHTML = await response.text();
+      navDiv.innerHTML = navbarHTML;
+
+      const currentPage =
+         window.location.pathname.split("/").pop() || "index.html";
+      const navLinks = navDiv.querySelectorAll("a[href]");
+
+      navLinks.forEach((link) => {
+         const href = link.getAttribute("href");
+
+         if (!href || href.startsWith("http")) return;
+
+         // Highlight active link
+         const linkPage = href.split("/").pop();
+         if (linkPage === currentPage) {
+            link.classList.add("active");
+         }
+
+         // Add navigation handler
+         link.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.electronAPI.navigateTo(href);
+         });
+      });
+   } catch (err) {
+      console.error("Failed to load navbar:", err);
+   }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
    const masterPasswordExist = await isMasterPasswordExist();
+   await injectNavbar();
 
    if (path.endsWith("login.html")) {
       const loginBtn = document.getElementById("loginBtn");
