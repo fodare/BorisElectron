@@ -1,3 +1,7 @@
+function isMasterPasswordExist() {
+   return window.electronAPI.checkForMasterPassword();
+}
+
 function getMasterPassWordInput() {
    return document.getElementById("masterPasswordInput")?.value.trim();
 }
@@ -44,13 +48,21 @@ async function handleRegister() {
 
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
+   const masterPasswordExist = await isMasterPasswordExist();
 
    if (path.endsWith("login.html")) {
-      document
-         .getElementById("loginBtn")
-         ?.addEventListener("click", handleLogin);
-      document
-         .getElementById("registerBtn")
-         ?.addEventListener("click", handleRegister);
+      const loginBtn = document.getElementById("loginBtn");
+      const registerBtn = document.getElementById("registerBtn");
+
+      loginBtn?.addEventListener("click", handleLogin);
+      registerBtn?.addEventListener("click", handleRegister);
+
+      if (masterPasswordExist) {
+         loginBtn.style.display = "block";
+         registerBtn.style.display = "none";
+      } else {
+         loginBtn.style.display = "none";
+         registerBtn.style.display = "block";
+      }
    }
 });
