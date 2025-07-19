@@ -1,0 +1,37 @@
+body{
+    margin: 0;
+    padding: 0;
+    display: block;
+    background-color: var(--dark-backgroud);
+    color: var(--text-color);
+}
+
+/* Colors */
+:root{--orange: #ff7e22;
+    --yellow: #fca62a;
+    --pink: #f57ad0;
+    --purple: #673ece;
+    --indigo: #5a43f1;
+    --indigo-dark: #4509cf;
+    --indigo-light: #969bf6;
+    --indigo-muted: #f1f2fd;
+    --dark-backgroud: #1c1e24;
+    --text-color:#f8f9fa;
+}
+
+/* Prefabs */
+
+
+/* Login styling */
+.masterPasswordPrompt{
+    display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   height: 100vh; 
+   gap: 1rem;
+}
+
+.masterPasswordInput{
+    max-width: 30rem;
+}
