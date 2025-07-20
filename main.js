@@ -9,6 +9,7 @@ import {
 } from "./Scripts/credentials.js";
 
 let mainWindow = null;
+let accountPromptWindow = null;
 const APP_DIR = app.getAppPath();
 
 function createWindow() {
@@ -98,4 +99,30 @@ ipcMain.handle("has-master-password", (event) => {
 
 ipcMain.on("navigate-to", (event, page) => {
    mainWindow.loadFile(path.join(APP_DIR, `/Pages/${page}`));
+});
+
+ipcMain.on("render-account-prompt", (event) => {
+   if (accountPromptWindow) {
+      accountPromptWindow.focus();
+      return;
+   }
+
+   accountPromptWindow = new BrowserWindow({
+      parent: mainWindow,
+      modal: true,
+      width: 900,
+      height: 750,
+      minimizable: false,
+      webPreferences: {
+         contextIsolation: true,
+         nodeIntegration: false,
+         preload: path.join(APP_DIR, "/Scripts/preload.js"),
+      },
+   });
+
+   accountPromptWindow.loadFile(path.join(APP_DIR, "/Pages/addAccount.html"));
+   accountPromptWindow.webContents.openDevTools();
+   accountPromptWindow.on("closed", () => {
+      accountPromptWindow = null;
+   });
 });
