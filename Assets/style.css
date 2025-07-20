@@ -43,8 +43,11 @@ body{
 }
 
 .content-div{
-    padding-top: 1rem;
-    padding-left: 1rem !important;
+    padding: 1rem;
+}
+
+.narrow-input {
+   max-width: 30rem !important;
 }
 
 /* Navbar styling */
@@ -73,4 +76,14 @@ body{
 
 .masterPasswordInput{
     max-width: 30rem;
+}
+
+/* Credentials styling */
+
+.page-heading{
+  padding-left: 2rem;
+}
+
+.credentialsContent{
+  padding: 2rem;
 }
