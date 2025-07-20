@@ -138,6 +138,46 @@ async function renderAddAccountWindow() {
    await window.electronAPI.renderAddAccountWindow();
 }
 
+function getAddAccountInputs() {
+   const rawNotes = document.getElementById("accountNote")?.value.trim() || "";
+
+   return {
+      accountName: document.getElementById("accountNameInput")?.value.trim(),
+      accountUserName: document.getElementById("usernameInput")?.value.trim(),
+      accountPassword: document.getElementById("passwordInput")?.value.trim(),
+      accountUrl: document.getElementById("urlInput")?.value.trim(),
+      accountNotes: rawNotes
+         .split(/\r?\n/)
+         .map((note) => note.trim())
+         .filter((note) => note.length > 0),
+   };
+}
+
+function setUpAddAccountPageIntractions() {
+   const saveAccountBtn = document.getElementById("addAccountBtn");
+   saveAccountBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const {
+         accountName,
+         accountUserName,
+         accountPassword,
+         accountUrl,
+         accountNotes,
+      } = getAddAccountInputs();
+      if (!accountName) {
+         setStatusMessage("Account name is required!");
+         return;
+      }
+      console.log(
+         accountName,
+         accountUserName,
+         accountPassword,
+         accountUrl,
+         accountNotes
+      );
+   });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
    const masterPasswordExist = await isMasterPasswordExist();
@@ -164,5 +204,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    if (path.endsWith("credentials.html")) {
       setupCredentialPageInteractions();
+   }
+
+   if (path.endsWith("addAccount.html")) {
+      setUpAddAccountPageIntractions();
    }
 });
