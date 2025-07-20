@@ -43,7 +43,11 @@ body{
 }
 
 .content-div{
-    padding-top: 1rem;
+    padding: 1rem;
+}
+
+.narrow-input {
+   max-width: 30rem !important;
 }
 
 /* Navbar styling */
@@ -72,4 +76,43 @@ body{
 
 .masterPasswordInput{
     max-width: 30rem;
+}
+
+/* Credentials styling */
+
+.page-heading{
+  padding-left: 2rem;
+}
+
+.credentialsContent{
+  padding: 2rem;
+}
+
+/* Add account styling */
+
+.centered-form-container {
+   height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.form-box {
+   width: 100%;
+   max-width: 500px;
+   padding: 1rem;
+}
+
+.form-box input,
+.form-box textarea,
+.form-box button {
+   margin-bottom: 1rem;
+}
+
+.add-accountBtn{
+  width: auto;
+   min-width: 150px;
+   align-self: center;
+   display: block;
+   margin: 0 auto;
 }

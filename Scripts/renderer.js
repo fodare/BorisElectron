@@ -84,6 +84,116 @@ async function injectNavbar() {
    }
 }
 
+function getSearchInputValue() {
+   return document.getElementById("accountNameInput")?.value.trim() || "";
+}
+
+async function handleSearchAccount() {
+   console.log(getSearchInputValue());
+}
+
+async function handleAddAccount() {
+   await renderAddAccountWindow();
+}
+
+async function setupCredentialPageInteractions() {
+   const accountInput = document.getElementById("accountNameInput");
+   const searchBtn = document.getElementById("searchBtn");
+   const addAccountBtn = document.getElementById("addAccountBtn");
+
+   if (!accountInput || !searchBtn || !addAccountBtn) return;
+
+   toggleButtons(false);
+
+   accountInput.addEventListener("focus", () => {
+      toggleButtons(accountInput.value.trim() !== "");
+   });
+
+   accountInput.addEventListener("blur", () => {
+      setTimeout(() => toggleButtons(false), 150);
+   });
+
+   accountInput.addEventListener("input", () => {
+      toggleButtons(accountInput.value.trim() !== "");
+   });
+
+   searchBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      await handleSearchAccount();
+   });
+
+   addAccountBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      await handleAddAccount();
+   });
+
+   function toggleButtons(showSearch) {
+      searchBtn.style.display = showSearch ? "inline-block" : "none";
+      addAccountBtn.style.display = showSearch ? "none" : "inline-block";
+   }
+}
+
+async function renderAddAccountWindow() {
+   await window.electronAPI.renderAddAccountWindow();
+}
+
+function getAddAccountInputs() {
+   const rawNotes = document.getElementById("accountNote")?.value.trim() || "";
+
+   return {
+      accountName: document.getElementById("accountNameInput")?.value.trim(),
+      accountUserName: document.getElementById("usernameInput")?.value.trim(),
+      accountPassword: document.getElementById("passwordInput")?.value.trim(),
+      accountUrl: document.getElementById("urlInput")?.value.trim(),
+      accountNotes: rawNotes
+         .split(/\r?\n/)
+         .map((note) => note.trim())
+         .filter((note) => note.length > 0),
+   };
+}
+
+async function setUpAddAccountPageIntractions() {
+   const saveAccountBtn = document.getElementById("addAccountBtn");
+   saveAccountBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const {
+         accountName,
+         accountUserName,
+         accountPassword,
+         accountUrl,
+         accountNotes,
+      } = getAddAccountInputs();
+      if (!accountName) {
+         setStatusMessage("Account name is required!");
+         return;
+      }
+      await saveNewAccountInfo(
+         accountName,
+         accountUserName,
+         accountPassword,
+         accountUrl,
+         accountNotes
+      );
+   });
+}
+
+async function saveNewAccountInfo(
+   accountName,
+   accountUserName,
+   accountPassword,
+   accountUrl,
+   accountNotes
+) {
+   const saveAccountResponse = await window.electronAPI.saveAccount(
+      accountName,
+      accountUserName,
+      accountPassword,
+      accountUrl,
+      accountNotes
+   );
+   console.log(saveAccountResponse);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
    const masterPasswordExist = await isMasterPasswordExist();
@@ -106,5 +216,13 @@ document.addEventListener("DOMContentLoaded", async () => {
          loginBtn.style.display = "none";
          registerBtn.style.display = "block";
       }
+   }
+
+   if (path.endsWith("credentials.html")) {
+      await setupCredentialPageInteractions();
+   }
+
+   if (path.endsWith("addAccount.html")) {
+      await setUpAddAccountPageIntractions();
    }
 });
