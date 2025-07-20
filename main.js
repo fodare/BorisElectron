@@ -126,3 +126,26 @@ ipcMain.on("render-account-prompt", (event) => {
       accountPromptWindow = null;
    });
 });
+
+ipcMain.handle(
+   "save-account",
+   (
+      event,
+      {
+         accountName,
+         accountUserName,
+         accountPassword,
+         accountUrl,
+         accountNotes,
+      }
+   ) => {
+      console.log(
+         accountName,
+         accountUserName,
+         accountPassword,
+         accountUrl,
+         accountNotes
+      );
+      return { success: true, messge: "Account saved!" };
+   }
+);

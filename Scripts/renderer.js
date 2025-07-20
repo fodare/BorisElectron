@@ -93,11 +93,10 @@ async function handleSearchAccount() {
 }
 
 async function handleAddAccount() {
-   console.log(`Opening add account prompt`);
    await renderAddAccountWindow();
 }
 
-function setupCredentialPageInteractions() {
+async function setupCredentialPageInteractions() {
    const accountInput = document.getElementById("accountNameInput");
    const searchBtn = document.getElementById("searchBtn");
    const addAccountBtn = document.getElementById("addAccountBtn");
@@ -153,7 +152,7 @@ function getAddAccountInputs() {
    };
 }
 
-function setUpAddAccountPageIntractions() {
+async function setUpAddAccountPageIntractions() {
    const saveAccountBtn = document.getElementById("addAccountBtn");
    saveAccountBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
@@ -168,7 +167,7 @@ function setUpAddAccountPageIntractions() {
          setStatusMessage("Account name is required!");
          return;
       }
-      console.log(
+      await saveNewAccountInfo(
          accountName,
          accountUserName,
          accountPassword,
@@ -176,6 +175,23 @@ function setUpAddAccountPageIntractions() {
          accountNotes
       );
    });
+}
+
+async function saveNewAccountInfo(
+   accountName,
+   accountUserName,
+   accountPassword,
+   accountUrl,
+   accountNotes
+) {
+   const saveAccountResponse = await window.electronAPI.saveAccount(
+      accountName,
+      accountUserName,
+      accountPassword,
+      accountUrl,
+      accountNotes
+   );
+   console.log(saveAccountResponse);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -203,10 +219,10 @@ document.addEventListener("DOMContentLoaded", async () => {
    }
 
    if (path.endsWith("credentials.html")) {
-      setupCredentialPageInteractions();
+      await setupCredentialPageInteractions();
    }
 
    if (path.endsWith("addAccount.html")) {
-      setUpAddAccountPageIntractions();
+      await setUpAddAccountPageIntractions();
    }
 });
