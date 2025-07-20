@@ -94,6 +94,7 @@ async function handleSearchAccount() {
 
 async function handleAddAccount() {
    console.log(`Opening add account prompt`);
+   await renderAddAccountWindow();
 }
 
 function setupCredentialPageInteractions() {
@@ -131,6 +132,10 @@ function setupCredentialPageInteractions() {
       searchBtn.style.display = showSearch ? "inline-block" : "none";
       addAccountBtn.style.display = showSearch ? "none" : "inline-block";
    }
+}
+
+async function renderAddAccountWindow() {
+   await window.electronAPI.renderAddAccountWindow();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
