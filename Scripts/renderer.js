@@ -84,6 +84,55 @@ async function injectNavbar() {
    }
 }
 
+function getSearchInputValue() {
+   return document.getElementById("accountNameInput")?.value.trim() || "";
+}
+
+async function handleSearchAccount() {
+   console.log(getSearchInputValue());
+}
+
+async function handleAddAccount() {
+   console.log(`Opening add account prompt`);
+}
+
+function setupCredentialPageInteractions() {
+   const accountInput = document.getElementById("accountNameInput");
+   const searchBtn = document.getElementById("searchBtn");
+   const addAccountBtn = document.getElementById("addAccountBtn");
+
+   if (!accountInput || !searchBtn || !addAccountBtn) return;
+
+   toggleButtons(false);
+
+   accountInput.addEventListener("focus", () => {
+      toggleButtons(accountInput.value.trim() !== "");
+   });
+
+   accountInput.addEventListener("blur", () => {
+      setTimeout(() => toggleButtons(false), 150);
+   });
+
+   accountInput.addEventListener("input", () => {
+      toggleButtons(accountInput.value.trim() !== "");
+   });
+
+   searchBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      await handleSearchAccount();
+   });
+
+   addAccountBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      await handleAddAccount();
+   });
+
+   function toggleButtons(showSearch) {
+      searchBtn.style.display = showSearch ? "inline-block" : "none";
+      addAccountBtn.style.display = showSearch ? "none" : "inline-block";
+   }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
    const masterPasswordExist = await isMasterPasswordExist();
@@ -106,5 +155,9 @@ document.addEventListener("DOMContentLoaded", async () => {
          loginBtn.style.display = "none";
          registerBtn.style.display = "block";
       }
+   }
+
+   if (path.endsWith("credentials.html")) {
+      setupCredentialPageInteractions();
    }
 });
