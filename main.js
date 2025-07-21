@@ -9,7 +9,10 @@ import {
    deriveKeyFromMasterpassword,
    encryptContent,
    decryptContent,
+   writeAccountToFile,
+   readAccountFromFile,
 } from "./Scripts/credentials.js";
+import { json } from "stream/consumers";
 
 let sessionMasterPassword = null;
 let sessionKey = null;
@@ -155,6 +158,7 @@ ipcMain.handle(
             message: "Can not persist account. Master password not in session!",
          };
       }
+
       const accountInfo = JSON.stringify({
          name: accountName,
          userName: accountUserName,
@@ -167,26 +171,23 @@ ipcMain.handle(
          sessionMasterPassword,
          sessionKey
       );
-      console.log(encryptionKey.data);
 
-      let enctyptedContent = encryptContent(accountInfo, encryptionKey.data);
-      console.log(enctyptedContent);
+      let encryptedData = encryptContent(accountInfo, encryptionKey.data);
 
-      if (!enctyptedContent.success) {
+      if (!encryptedData.success) {
          return {
             success: false,
             message: "Failed to encrypt account content.",
          };
       }
-      let parsedContent = JSON.parse(enctyptedContent.encryptedContent);
-      console.log(parsedContent.iv, parsedContent.data);
 
-      let decryptedVersion = decryptContent(
-         parsedContent.iv,
-         parsedContent.data,
-         encryptionKey.data
-      );
-      console.log(decryptedVersion);
-      return { success: true, message: "Account saved!" };
+      const pasrsedContent = JSON.parse(encryptedData.encryptedContent);
+      const isAccountSaved = writeAccountToFile(pasrsedContent);
+
+      if (isAccountSaved.success) {
+         return { success: true, message: isAccountSaved.message };
+      } else {
+         return { success: false, message: isAccountSaved.message };
+      }
    }
 );
