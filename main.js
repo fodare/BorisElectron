@@ -12,7 +12,6 @@ import {
    writeAccountToFile,
    readAccountFromFile,
 } from "./Scripts/credentials.js";
-import { json } from "stream/consumers";
 
 let sessionMasterPassword = null;
 let sessionKey = null;
