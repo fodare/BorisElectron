@@ -6,7 +6,13 @@ import {
    isPasswordValid,
    writeMasterPassword,
    readMasterPassword,
+   deriveKeyFromMasterpassword,
+   encryptContent,
+   decryptContent,
 } from "./Scripts/credentials.js";
+
+let sessionMasterPassword = null;
+let sessionKey = null;
 
 let mainWindow = null;
 let accountPromptWindow = null;
@@ -35,6 +41,8 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
+   sessionKey = null;
+   sessionMasterPassword = null;
    if (process.platform !== "darwin") app.quit();
 });
 
@@ -81,6 +89,8 @@ ipcMain.handle("verify-master-password", (event, { passwordInput }) => {
       );
 
       if (valid) {
+         sessionMasterPassword = passwordInput;
+         sessionKey = encrypted.salt;
          return { success: true, message: "Login successful." };
       } else {
          return { success: false, message: "Incorrect master password." };
@@ -139,13 +149,44 @@ ipcMain.handle(
          accountNotes,
       }
    ) => {
-      console.log(
-         accountName,
-         accountUserName,
-         accountPassword,
-         accountUrl,
-         accountNotes
+      if (!sessionMasterPassword || !sessionKey) {
+         return {
+            success: false,
+            message: "Can not persist account. Master password not in session!",
+         };
+      }
+      const accountInfo = JSON.stringify({
+         name: accountName,
+         userName: accountUserName,
+         password: accountPassword,
+         url: accountUrl,
+         notes: accountNotes,
+      });
+
+      let encryptionKey = deriveKeyFromMasterpassword(
+         sessionMasterPassword,
+         sessionKey
       );
-      return { success: true, messge: "Account saved!" };
+      console.log(encryptionKey.data);
+
+      let enctyptedContent = encryptContent(accountInfo, encryptionKey.data);
+      console.log(enctyptedContent);
+
+      if (!enctyptedContent.success) {
+         return {
+            success: false,
+            message: "Failed to encrypt account content.",
+         };
+      }
+      let parsedContent = JSON.parse(enctyptedContent.encryptedContent);
+      console.log(parsedContent.iv, parsedContent.data);
+
+      let decryptedVersion = decryptContent(
+         parsedContent.iv,
+         parsedContent.data,
+         encryptionKey.data
+      );
+      console.log(decryptedVersion);
+      return { success: true, message: "Account saved!" };
    }
 );
