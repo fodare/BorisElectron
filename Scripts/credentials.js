@@ -5,8 +5,9 @@ import { app } from "electron";
 
 let APP_DIR = app.getAppPath();
 let MASTER_PASS_FILE = path.join(APP_DIR, "/Data/password.enc");
+let ACCOUNTS_FILE = path.join(APP_DIR, "/Data/accounts.enc");
 
-// Master-Password control
+// ---------- Master-Password control ---------- //
 
 function masterPasswordExist() {
    try {
@@ -72,7 +73,11 @@ function readMasterPassword() {
    return encrypted;
 }
 
-// Other encryption logic
+// function deleteMasterPassword() {
+//    if (fs.existsSync(MASTER_PASS_FILE)) fs.unlinkSync(MASTER_PASS_FILE);
+// }
+
+// ---------- Other encryption logic ---------- //
 
 function deriveKeyFromMasterpassword(masterPassword, saltHex) {
    try {
@@ -136,9 +141,57 @@ function decryptContent(iv, data, key) {
    }
 }
 
-// function deleteMasterPassword() {
-//    if (fs.existsSync(MASTER_PASS_FILE)) fs.unlinkSync(MASTER_PASS_FILE);
-// }
+function writeAccountToFile(encryptedAccount) {
+   try {
+      fs.mkdirSync(path.dirname(MASTER_PASS_FILE), { recursive: true });
+      let currentData = [];
+      if (fs.existsSync(ACCOUNTS_FILE)) {
+         const rawData = fs.readFileSync(ACCOUNTS_FILE, "utf8");
+         currentData = JSON.parse(rawData);
+      }
+      currentData.push(encryptedAccount);
+      fs.writeFileSync(
+         ACCOUNTS_FILE,
+         JSON.stringify(currentData, null, 3),
+         "utf8"
+      );
+
+      return {
+         success: true,
+         message: "Wrote account to file!",
+      };
+   } catch (error) {
+      return {
+         success: false,
+         message: error,
+      };
+   }
+}
+
+function readAccountFromFile() {
+   try {
+      if (!fs.existsSync(ACCOUNTS_FILE)) {
+         return { success: false, data: [] };
+      }
+
+      const fileContent = fs.readFileSync(ACCOUNTS_FILE, "utf8");
+      const data = JSON.parse(fileContent);
+
+      if (!Array.isArray(data)) {
+         return {
+            success: false,
+            error: "Malformed accounts file. Expected an array of accounts.",
+         };
+      }
+
+      return { success: true, data };
+   } catch (error) {
+      return {
+         success: false,
+         error: "Error reading accounts file.",
+      };
+   }
+}
 
 export {
    masterPasswordExist,
@@ -149,4 +202,13 @@ export {
    deriveKeyFromMasterpassword,
    encryptContent,
    decryptContent,
+   writeAccountToFile,
+   readAccountFromFile,
 };
+
+// let parsedContent = JSON.parse(enctyptedContent.encryptedContent);
+// let decryptedVersion = decryptContent(
+//    parsedContent.iv,
+//    parsedContent.data,
+//    encryptionKey.data
+// );
