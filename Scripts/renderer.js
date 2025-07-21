@@ -191,7 +191,7 @@ async function saveNewAccountInfo(
       accountUrl,
       accountNotes
    );
-   console.log(saveAccountResponse);
+   setStatusMessage(saveAccountResponse.message);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

@@ -6,7 +6,15 @@ import {
    isPasswordValid,
    writeMasterPassword,
    readMasterPassword,
+   deriveKeyFromMasterpassword,
+   encryptContent,
+   decryptContent,
+   writeAccountToFile,
+   readAccountFromFile,
 } from "./Scripts/credentials.js";
+
+let sessionMasterPassword = null;
+let sessionKey = null;
 
 let mainWindow = null;
 let accountPromptWindow = null;
@@ -35,6 +43,8 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
+   sessionKey = null;
+   sessionMasterPassword = null;
    if (process.platform !== "darwin") app.quit();
 });
 
@@ -81,6 +91,8 @@ ipcMain.handle("verify-master-password", (event, { passwordInput }) => {
       );
 
       if (valid) {
+         sessionMasterPassword = passwordInput;
+         sessionKey = encrypted.salt;
          return { success: true, message: "Login successful." };
       } else {
          return { success: false, message: "Incorrect master password." };
@@ -139,13 +151,42 @@ ipcMain.handle(
          accountNotes,
       }
    ) => {
-      console.log(
-         accountName,
-         accountUserName,
-         accountPassword,
-         accountUrl,
-         accountNotes
+      if (!sessionMasterPassword || !sessionKey) {
+         return {
+            success: false,
+            message: "Can not persist account. Master password not in session!",
+         };
+      }
+
+      const accountInfo = JSON.stringify({
+         name: accountName,
+         userName: accountUserName,
+         password: accountPassword,
+         url: accountUrl,
+         notes: accountNotes,
+      });
+
+      let encryptionKey = deriveKeyFromMasterpassword(
+         sessionMasterPassword,
+         sessionKey
       );
-      return { success: true, messge: "Account saved!" };
+
+      let encryptedData = encryptContent(accountInfo, encryptionKey.data);
+
+      if (!encryptedData.success) {
+         return {
+            success: false,
+            message: "Failed to encrypt account content.",
+         };
+      }
+
+      const pasrsedContent = JSON.parse(encryptedData.encryptedContent);
+      const isAccountSaved = writeAccountToFile(pasrsedContent);
+
+      if (isAccountSaved.success) {
+         return { success: true, message: isAccountSaved.message };
+      } else {
+         return { success: false, message: isAccountSaved.message };
+      }
    }
 );
