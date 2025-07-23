@@ -101,6 +101,8 @@ async function setupCredentialPageInteractions() {
    const searchBtn = document.getElementById("searchBtn");
    const addAccountBtn = document.getElementById("addAccountBtn");
 
+   const tableBody = document.getElementById("credentialsTableBody");
+
    if (!accountInput || !searchBtn || !addAccountBtn) return;
 
    toggleButtons(false);
@@ -130,6 +132,24 @@ async function setupCredentialPageInteractions() {
    function toggleButtons(showSearch) {
       searchBtn.style.display = showSearch ? "inline-block" : "none";
       addAccountBtn.style.display = showSearch ? "none" : "inline-block";
+   }
+
+   const accounts = await getSavedAccounts();
+   if (accounts.success) {
+      tableBody.innerHTML = "";
+      accounts.data.forEach((account) => {
+         const row = document.createElement("tr");
+         row.innerHTML = `
+         <td>${account.name}</td>
+         <td>${account.userName}</td>
+         <td>${account.password}</td>
+         <td>${account.url}</td>
+         <td>${account.notes}</td>
+      `;
+         tableBody.appendChild(row);
+      });
+   } else {
+      setStatusMessage(accounts.error);
    }
 }
 
@@ -192,6 +212,10 @@ async function saveNewAccountInfo(
       accountNotes
    );
    setStatusMessage(saveAccountResponse.message);
+}
+
+async function getSavedAccounts() {
+   return await window.electronAPI.readSavedAccounts();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
