@@ -190,3 +190,44 @@ ipcMain.handle(
       }
    }
 );
+
+ipcMain.handle("read-saved-accounts", (event) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Master password not in session.",
+      };
+   }
+
+   const savedAccounts = readAccountFromFile();
+   const derivedKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey
+   );
+
+   if (!savedAccounts.success || !derivedKey.success) {
+      return {
+         success: false,
+         message: "Failed to read or decrypt accounts.",
+      };
+   }
+
+   const decryptedAccounts = savedAccounts.data
+      .map((account) => {
+         const result = decryptContent(
+            account.iv,
+            account.data,
+            derivedKey.data
+         );
+         if (result.success) {
+            return JSON.parse(result.data);
+         }
+         return null;
+      })
+      .filter(Boolean);
+
+   return {
+      success: true,
+      data: decryptedAccounts,
+   };
+});
