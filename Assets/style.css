@@ -50,6 +50,17 @@ body{
    max-width: 30rem !important;
 }
 
+.narrow-top-padding{
+  padding-top: 2rem;
+}
+
+.table thead th {
+   position: sticky;
+   top: 0;
+   background-color: #fff;
+   z-index: 1;
+}
+
 /* Navbar styling */
 
 .nav-div {
@@ -87,6 +98,19 @@ body{
 .credentialsContent{
   padding: 2rem;
 }
+
+.table-scroll-wrapper {
+   max-height: 500px; 
+   overflow-y: auto;
+   margin-top: 10px;
+   border-radius: 5px;
+}
+
+.accounts-table{
+  background-color: var(--dark-backgroud) !important;
+  color: var(--text-color) !important;
+}
+
 
 /* Add account styling */
 

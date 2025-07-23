@@ -188,7 +188,7 @@ function readAccountFromFile() {
    } catch (error) {
       return {
          success: false,
-         error: "Error reading accounts file.",
+         error: error,
       };
    }
 }
@@ -205,10 +205,3 @@ export {
    writeAccountToFile,
    readAccountFromFile,
 };
-
-// let parsedContent = JSON.parse(enctyptedContent.encryptedContent);
-// let decryptedVersion = decryptContent(
-//    parsedContent.iv,
-//    parsedContent.data,
-//    encryptionKey.data
-// );
