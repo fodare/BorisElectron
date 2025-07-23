@@ -28,4 +28,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
          accountUrl,
          accountNotes,
       }),
+   readSavedAccounts: () => ipcRenderer.invoke("read-saved-accounts"),
 });
