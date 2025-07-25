@@ -142,9 +142,8 @@ async function setupCredentialPageInteractions() {
          row.innerHTML = `
          <td>${account.name}</td>
          <td>${account.userName}</td>
-         <td>${account.password}</td>
+         <td class="hidetext">${account.password}</td>
          <td>${account.url}</td>
-         <td>${account.notes}</td>
       `;
          tableBody.appendChild(row);
       });
