@@ -29,6 +29,7 @@ function createWindow() {
          nodeIntegration: false,
          preload: path.join(APP_DIR, "/Scripts/preload.js"),
       },
+      icon: path.join(APP_DIR, "/Assets/Boris.png"),
    });
 
    mainWindow.loadFile(path.join(APP_DIR, "/Pages/login.html"));
