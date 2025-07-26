@@ -54,6 +54,10 @@ body{
   padding-top: 2rem;
 }
 
+.small-top-padding{
+  padding-top: 1rem;
+}
+
 .table thead th {
    position: sticky;
    top: 0;
