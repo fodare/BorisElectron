@@ -132,8 +132,12 @@ async function setupCredentialPageInteractions() {
       setTimeout(() => toggleButtons(false), 150);
    });
 
-   accountInput.addEventListener("input", () => {
-      toggleButtons(accountInput.value.trim() !== "");
+   accountInput.addEventListener("input", async () => {
+      const isEmpty = accountInput.value.trim() === "";
+      toggleButtons(!isEmpty);
+      if (isEmpty) {
+         await refreshAccountsTable();
+      }
    });
 
    searchBtn.addEventListener("click", async (event) => {
