@@ -54,12 +54,19 @@ body{
   padding-top: 2rem;
 }
 
+.small-top-padding{
+  padding-top: 1rem;
+}
+
 .table thead th {
    position: sticky;
    top: 0;
    background-color: #fff;
    z-index: 1;
 }
+
+.hidetext { -webkit-text-security: disc; }
+
 
 /* Navbar styling */
 
@@ -140,4 +147,8 @@ body{
    align-self: center;
    display: block;
    margin: 0 auto;
+}
+
+.add-account-header{
+  padding-bottom: 1rem;
 }

@@ -29,4 +29,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
          accountNotes,
       }),
    readSavedAccounts: () => ipcRenderer.invoke("read-saved-accounts"),
+   notifyAccountAdded: () => ipcRenderer.send("account-added"),
+   onRefreshAccounts: (callback) =>
+      ipcRenderer.on("refresh-accounts", callback),
+   closeAddAccountWindow: () => ipcRenderer.send("close-add-account-window"),
 });

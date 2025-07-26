@@ -89,7 +89,24 @@ function getSearchInputValue() {
 }
 
 async function handleSearchAccount() {
-   console.log(getSearchInputValue());
+   const accountNameInput = getSearchInputValue();
+   const savedAccounts = await getSavedAccounts();
+   if (!savedAccounts.success) {
+      setStatusMessage(savedAccounts.message);
+      return;
+   }
+
+   const searchedAccount = savedAccounts.data.find(
+      (account) => account.name === accountNameInput
+   );
+
+   if (searchedAccount) {
+      injectAccountsIntoTable(searchedAccount);
+   } else {
+      setStatusMessage(
+         `There are no account with the name ${accountNameInput}!`
+      );
+   }
 }
 
 async function handleAddAccount() {
@@ -97,12 +114,12 @@ async function handleAddAccount() {
 }
 
 async function setupCredentialPageInteractions() {
+   window.electronAPI.onRefreshAccounts(async () => {
+      await refreshAccountsTable();
+   });
    const accountInput = document.getElementById("accountNameInput");
    const searchBtn = document.getElementById("searchBtn");
    const addAccountBtn = document.getElementById("addAccountBtn");
-
-   const tableBody = document.getElementById("credentialsTableBody");
-
    if (!accountInput || !searchBtn || !addAccountBtn) return;
 
    toggleButtons(false);
@@ -115,8 +132,12 @@ async function setupCredentialPageInteractions() {
       setTimeout(() => toggleButtons(false), 150);
    });
 
-   accountInput.addEventListener("input", () => {
-      toggleButtons(accountInput.value.trim() !== "");
+   accountInput.addEventListener("input", async () => {
+      const isEmpty = accountInput.value.trim() === "";
+      toggleButtons(!isEmpty);
+      if (isEmpty) {
+         await refreshAccountsTable();
+      }
    });
 
    searchBtn.addEventListener("click", async (event) => {
@@ -136,18 +157,7 @@ async function setupCredentialPageInteractions() {
 
    const accounts = await getSavedAccounts();
    if (accounts.success) {
-      tableBody.innerHTML = "";
-      accounts.data.forEach((account) => {
-         const row = document.createElement("tr");
-         row.innerHTML = `
-         <td>${account.name}</td>
-         <td>${account.userName}</td>
-         <td>${account.password}</td>
-         <td>${account.url}</td>
-         <td>${account.notes}</td>
-      `;
-         tableBody.appendChild(row);
-      });
+      injectAccountsIntoTable(accounts.data);
    } else {
       setStatusMessage(accounts.error);
    }
@@ -212,10 +222,41 @@ async function saveNewAccountInfo(
       accountNotes
    );
    setStatusMessage(saveAccountResponse.message);
+   if (saveAccountResponse.success) {
+      await window.electronAPI.notifyAccountAdded();
+      setTimeout(() => {
+         window.electronAPI.closeAddAccountWindow();
+      }, 100);
+   }
 }
 
 async function getSavedAccounts() {
    return await window.electronAPI.readSavedAccounts();
+}
+
+function injectAccountsIntoTable(accounts) {
+   const tableBody = document.getElementById("credentialsTableBody");
+   tableBody.innerHTML = "";
+   const accountArray = Array.isArray(accounts) ? accounts : [accounts];
+   accountArray.forEach((account) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+         <td>${account.name}</td>
+         <td>${account.userName}</td>
+         <td class="hidetext">${account.password}</td>
+         <td>${account.url}</td>
+      `;
+      tableBody.appendChild(row);
+   });
+}
+
+async function refreshAccountsTable() {
+   const accounts = await getSavedAccounts();
+   if (accounts.success) {
+      injectAccountsIntoTable(accounts.data);
+   } else {
+      setStatusMessage(accounts.error);
+   }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
