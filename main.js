@@ -232,3 +232,21 @@ ipcMain.handle("read-saved-accounts", (event) => {
       data: decryptedAccounts,
    };
 });
+
+ipcMain.on("account-added", () => {
+   const allWindows = BrowserWindow.getAllWindows();
+   const credentialsWin = allWindows.find((win) =>
+      win.webContents.getURL().includes("credentials.html")
+   );
+
+   if (credentialsWin) {
+      credentialsWin.webContents.send("refresh-accounts");
+   }
+});
+
+ipcMain.on("close-add-account-window", () => {
+   if (accountPromptWindow) {
+      accountPromptWindow.close();
+      accountPromptWindow = null;
+   }
+});
