@@ -1,15 +1,9 @@
+import { handleLogin, handleRegister } from "./login.js";
+import { isMasterPasswordExist, injectNavbar } from "./helper.js";
 import {
    setupCredentialPageInteractions,
    setUpAddAccountPageIntractions,
 } from "./accounts.js";
-
-import { handleLogin, handleRegister } from "./login.js";
-import {
-   isMasterPasswordExist,
-   getMasterPassWordInput,
-   setStatusMessage,
-   injectNavbar,
-} from "./helper.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
