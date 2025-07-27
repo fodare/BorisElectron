@@ -92,7 +92,9 @@ async function setUpAddAccountPageIntractions() {
          return;
       }
       if (accountAlreadyExist(accountName)) {
-         setStatusMessage(`${accountName} already exists!`);
+         setStatusMessage(
+            `An account with the name ${accountName} already exists!`
+         );
          return;
       }
       await saveNewAccountInfo(
