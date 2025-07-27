@@ -113,7 +113,7 @@ async function saveNewAccountInfo(
       await window.electronAPI.notifyAccountAdded();
       setTimeout(() => {
          window.electronAPI.closeAddAccountWindow();
-      }, 100);
+      }, 3500);
    }
 }
 
