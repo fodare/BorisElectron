@@ -152,3 +152,12 @@ body{
 .add-account-header{
   padding-bottom: 1rem;
 }
+
+/* Media styling */
+@media (min-width: 768px) {
+   .nav-container {
+      height: 100vh;
+      border-right: 1px solid #dee2e6;
+      border-bottom: none;
+   }
+}
