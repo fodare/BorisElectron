@@ -1,9 +1,4 @@
-import {
-   isMasterPasswordExist,
-   getMasterPassWordInput,
-   setStatusMessage,
-   injectNavbar,
-} from "./helper.js";
+import { setStatusMessage } from "./helper.js";
 
 async function setupCredentialPageInteractions() {
    window.electronAPI.onRefreshAccounts(async () => {
