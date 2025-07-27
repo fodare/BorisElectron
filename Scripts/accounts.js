@@ -69,6 +69,13 @@ function getAddAccountInputs() {
    };
 }
 
+async function accountAlreadyExist(newAccountNameInput) {
+   const { success, data } = await getSavedAccounts();
+   return (
+      success && data.some((account) => account.name === newAccountNameInput)
+   );
+}
+
 async function setUpAddAccountPageIntractions() {
    const saveAccountBtn = document.getElementById("addAccountBtn");
    saveAccountBtn?.addEventListener("click", async (event) => {
@@ -82,6 +89,10 @@ async function setUpAddAccountPageIntractions() {
       } = getAddAccountInputs();
       if (!accountName) {
          setStatusMessage("Account name is required!");
+         return;
+      }
+      if (accountAlreadyExist(accountName)) {
+         setStatusMessage(`${accountName} already exists!`);
          return;
       }
       await saveNewAccountInfo(
