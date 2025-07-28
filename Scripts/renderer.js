@@ -1,5 +1,9 @@
 import { handleLogin, handleRegister } from "./login.js";
-import { isMasterPasswordExist, injectNavbar } from "./helper.js";
+import {
+   isMasterPasswordExist,
+   injectNavbar,
+   addTableInteractions,
+} from "./helper.js";
 import {
    setupCredentialPageInteractions,
    setUpAddAccountPageIntractions,
@@ -31,6 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    if (path.endsWith("credentials.html")) {
       await setupCredentialPageInteractions();
+      addTableInteractions("credentialsTableBody");
    }
 
    if (path.endsWith("addAccount.html")) {
