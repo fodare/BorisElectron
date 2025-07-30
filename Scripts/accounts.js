@@ -190,4 +190,29 @@ function getSearchInputValue() {
    return document.getElementById("accountNameInput")?.value.trim() || "";
 }
 
-export { setupCredentialPageInteractions, setUpAddAccountPageIntractions };
+async function setUpUpdateAccountInteractions() {
+   const accountNameElement = document.getElementById("accountName");
+   const usernameElement = document.getElementById("accountUsername");
+   const passwordElement = document.getElementById("accountPassword");
+   const urlElement = document.getElementById("accountUrl");
+   const notesElement = document.getElementById("accountNotes");
+
+   window.electronAPI.requestUpdateData();
+   window.electronAPI.onReceiveUpdateData((data) => {
+      if (!data) return;
+
+      accountNameElement.value = data.name || "";
+      usernameElement.value = data.userName || "";
+      passwordElement.value = data.password || "";
+      urlElement.value = data.url || "";
+      notesElement.value = Array.isArray(data.notes)
+         ? data.notes.join("\n")
+         : data.notes || "";
+   });
+}
+
+export {
+   setupCredentialPageInteractions,
+   setUpAddAccountPageIntractions,
+   setUpUpdateAccountInteractions,
+};
