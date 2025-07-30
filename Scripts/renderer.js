@@ -7,6 +7,7 @@ import {
 import {
    setupCredentialPageInteractions,
    setUpAddAccountPageIntractions,
+   setUpUpdateAccountInteractions,
 } from "./accounts.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -40,5 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    if (path.endsWith("addAccount.html")) {
       await setUpAddAccountPageIntractions();
+   }
+
+   if (path.endsWith("updateAccount.html")) {
+      await setUpUpdateAccountInteractions();
    }
 });
