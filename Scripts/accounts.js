@@ -146,6 +146,7 @@ function injectAccountsIntoTable(accounts) {
          <td>${account.userName}</td>
          <td class="hidetext">${account.password}</td>
          <td>${account.url}</td>
+         <td class="hidden-note">${account.notes}</td>
       `;
       tableBody.appendChild(row);
    });

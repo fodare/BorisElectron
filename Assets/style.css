@@ -118,6 +118,10 @@ body{
   color: var(--text-color) !important;
 }
 
+.hidden-note{
+  display: none;
+}
+
 
 /* Add account styling */
 
