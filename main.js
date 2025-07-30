@@ -18,6 +18,7 @@ let sessionKey = null;
 
 let mainWindow = null;
 let accountPromptWindow = null;
+let updateAccountWindow = null;
 const APP_DIR = app.getAppPath();
 
 function createWindow() {
@@ -249,4 +250,37 @@ ipcMain.on("close-add-account-window", () => {
       accountPromptWindow.close();
       accountPromptWindow = null;
    }
+});
+
+ipcMain.on("render-update-window", (event, accountData) => {
+   if (updateAccountWindow) {
+      updateAccountWindow.focus();
+      return;
+   }
+
+   updateAccountWindow = new BrowserWindow({
+      parent: mainWindow,
+      modal: true,
+      width: 900,
+      height: 750,
+      minimizable: false,
+      webPreferences: {
+         contextIsolation: true,
+         nodeIntegration: false,
+         preload: path.join(APP_DIR, "/Scripts/preload.js"),
+      },
+   });
+
+   ipcMain.once("get-update-data", (event) => {
+      event.reply("update-data", accountData);
+   });
+
+   updateAccountWindow.loadFile(
+      path.join(APP_DIR, "/Pages/updateAccount.html")
+   );
+   updateAccountWindow.webContents.openDevTools();
+
+   updateAccountWindow.on("closed", () => {
+      updateAccountWindow = null;
+   });
 });
