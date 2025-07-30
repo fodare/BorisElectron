@@ -88,9 +88,17 @@ function addTableInteractions(tableBodyId) {
    tableBody.addEventListener("dblclick", (event) => {
       const target = event.target;
       if (target.tagName === "TD") {
-         // Todo: Handle update logic here
-         //  alert(`Double click event ${target.textContent}`);
-         return;
+         const row = target.parentElement;
+         const cells = row.querySelectorAll("td");
+
+         const accountData = {
+            name: cells[0]?.textContent,
+            userName: cells[1]?.textContent,
+            password: cells[2]?.textContent,
+            url: cells[3]?.textContent,
+            notes: cells[4]?.textContent,
+         };
+         window.electronAPI.renderUpdateWindow(accountData);
       }
    });
 
