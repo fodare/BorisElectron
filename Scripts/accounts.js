@@ -92,7 +92,7 @@ async function setUpAddAccountPageIntractions() {
          setStatusMessage("Account name is required!");
          return;
       }
-      if (!accountAlreadyExist(accountName)) {
+      if (await accountAlreadyExist(accountName)) {
          setStatusMessage(
             `An account with the name ${accountName} already exists!`
          );
@@ -197,6 +197,8 @@ async function setUpUpdateAccountInteractions() {
    const urlElement = document.getElementById("accountUrl");
    const notesElement = document.getElementById("accountNotes");
 
+   let oldAccountName = null; // User might want to update account name
+
    window.electronAPI.requestUpdateData();
    window.electronAPI.onReceiveUpdateData((data) => {
       if (!data) return;
@@ -208,6 +210,40 @@ async function setUpUpdateAccountInteractions() {
       notesElement.value = Array.isArray(data.notes)
          ? data.notes.join("\n")
          : data.notes || "";
+
+      oldAccountName = accountNameElement.value;
+
+      document
+         .getElementById("updateAccountBtn")
+         ?.addEventListener("click", async (event) => {
+            event.preventDefault();
+            const updatedAccountInfo = {
+               name: accountNameElement.value,
+               userName: usernameElement.value,
+               password: passwordElement.value,
+               url: urlElement.value,
+               notes: notesElement.value.split(/\r?\n/).filter(Boolean),
+            };
+
+            if (!updatedAccountInfo.name) {
+               setStatusMessage("Account name can not be null / empty!");
+               return;
+            }
+
+            const updateAccountResponse =
+               await window.electronAPI.updateAccount(
+                  oldAccountName,
+                  updatedAccountInfo
+               );
+
+            setStatusMessage(updateAccountResponse.message);
+
+            if (updateAccountResponse.success) {
+               setTimeout(() => {
+                  window.close();
+               }, 3500);
+            }
+         });
    });
 }
 
