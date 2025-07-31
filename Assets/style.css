@@ -66,6 +66,9 @@ body{
 }
 
 .hidetext { -webkit-text-security: disc; }
+.hidetext:hover {
+  -webkit-text-security: none;
+}
 
 
 /* Navbar styling */
