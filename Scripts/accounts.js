@@ -71,6 +71,7 @@ function getAddAccountInputs() {
 
 async function accountAlreadyExist(newAccountNameInput) {
    const { success, data } = await getSavedAccounts();
+   console.log(await getSavedAccounts());
    return (
       success && data.some((account) => account.name === newAccountNameInput)
    );
@@ -91,7 +92,7 @@ async function setUpAddAccountPageIntractions() {
          setStatusMessage("Account name is required!");
          return;
       }
-      if (accountAlreadyExist(accountName)) {
+      if (await accountAlreadyExist(accountName)) {
          setStatusMessage(
             `An account with the name ${accountName} already exists!`
          );
@@ -145,6 +146,7 @@ function injectAccountsIntoTable(accounts) {
          <td>${account.userName}</td>
          <td class="hidetext">${account.password}</td>
          <td>${account.url}</td>
+         <td class="hidden-note">${account.notes}</td>
       `;
       tableBody.appendChild(row);
    });
@@ -188,4 +190,65 @@ function getSearchInputValue() {
    return document.getElementById("accountNameInput")?.value.trim() || "";
 }
 
-export { setupCredentialPageInteractions, setUpAddAccountPageIntractions };
+async function setUpUpdateAccountInteractions() {
+   const accountNameElement = document.getElementById("accountName");
+   const usernameElement = document.getElementById("accountUsername");
+   const passwordElement = document.getElementById("accountPassword");
+   const urlElement = document.getElementById("accountUrl");
+   const notesElement = document.getElementById("accountNotes");
+
+   let oldAccountName = null; // User might want to update account name
+
+   window.electronAPI.requestUpdateData();
+   window.electronAPI.onReceiveUpdateData((data) => {
+      if (!data) return;
+
+      accountNameElement.value = data.name || "";
+      usernameElement.value = data.userName || "";
+      passwordElement.value = data.password || "";
+      urlElement.value = data.url || "";
+      notesElement.value = Array.isArray(data.notes)
+         ? data.notes.join("\n")
+         : data.notes || "";
+
+      oldAccountName = accountNameElement.value;
+
+      document
+         .getElementById("updateAccountBtn")
+         ?.addEventListener("click", async (event) => {
+            event.preventDefault();
+            const updatedAccountInfo = {
+               name: accountNameElement.value,
+               userName: usernameElement.value,
+               password: passwordElement.value,
+               url: urlElement.value,
+               notes: notesElement.value.split(/\r?\n/).filter(Boolean),
+            };
+
+            if (!updatedAccountInfo.name) {
+               setStatusMessage("Account name can not be null / empty!");
+               return;
+            }
+
+            const updateAccountResponse =
+               await window.electronAPI.updateAccount(
+                  oldAccountName,
+                  updatedAccountInfo
+               );
+
+            setStatusMessage(updateAccountResponse.message);
+
+            if (updateAccountResponse.success) {
+               setTimeout(() => {
+                  window.close();
+               }, 3500);
+            }
+         });
+   });
+}
+
+export {
+   setupCredentialPageInteractions,
+   setUpAddAccountPageIntractions,
+   setUpUpdateAccountInteractions,
+};

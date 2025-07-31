@@ -11,6 +11,7 @@ import {
    decryptContent,
    writeAccountToFile,
    readAccountFromFile,
+   updateAccountInFile,
 } from "./Scripts/credentials.js";
 
 let sessionMasterPassword = null;
@@ -18,6 +19,7 @@ let sessionKey = null;
 
 let mainWindow = null;
 let accountPromptWindow = null;
+let updateAccountWindow = null;
 const APP_DIR = app.getAppPath();
 
 function createWindow() {
@@ -250,3 +252,65 @@ ipcMain.on("close-add-account-window", () => {
       accountPromptWindow = null;
    }
 });
+
+ipcMain.on("render-update-window", (event, accountData) => {
+   if (updateAccountWindow) {
+      updateAccountWindow.focus();
+      return;
+   }
+
+   updateAccountWindow = new BrowserWindow({
+      parent: mainWindow,
+      modal: true,
+      width: 900,
+      height: 750,
+      minimizable: false,
+      webPreferences: {
+         contextIsolation: true,
+         nodeIntegration: false,
+         preload: path.join(APP_DIR, "/Scripts/preload.js"),
+      },
+   });
+
+   ipcMain.once("get-update-data", (event) => {
+      event.reply("update-data", accountData);
+   });
+
+   updateAccountWindow.loadFile(
+      path.join(APP_DIR, "/Pages/updateAccount.html")
+   );
+   updateAccountWindow.webContents.openDevTools();
+
+   updateAccountWindow.on("closed", () => {
+      updateAccountWindow = null;
+   });
+});
+
+ipcMain.handle(
+   "update-account",
+   (event, { oldAccountName, updatedAccount }) => {
+      if (!sessionMasterPassword || !sessionKey) {
+         return {
+            success: false,
+            message: "Master password not in session.",
+         };
+      }
+
+      const result = updateAccountInFile(
+         oldAccountName,
+         updatedAccount,
+         sessionMasterPassword,
+         sessionKey
+      );
+
+      if (result.success) {
+         const credentialsWin = BrowserWindow.getAllWindows().find((win) =>
+            win.webContents.getURL().includes("credentials.html")
+         );
+         if (credentialsWin) {
+            credentialsWin.webContents.send("refresh-accounts");
+         }
+      }
+      return result;
+   }
+);
