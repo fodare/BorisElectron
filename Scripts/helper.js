@@ -1,3 +1,5 @@
+import { refreshAccountsTable } from "./accounts.js";
+
 function isMasterPasswordExist() {
    return window.electronAPI.checkForMasterPassword();
 }
@@ -102,7 +104,7 @@ function addTableInteractions(tableBodyId) {
       }
    });
 
-   document.addEventListener("keydown", (event) => {
+   document.addEventListener("keydown", async (event) => {
       if (!selectedCell) {
          return;
       }
@@ -125,6 +127,27 @@ function addTableInteractions(tableBodyId) {
                });
             })
             .catch((error) => setStatusMessage(error));
+      }
+
+      if (event.key === "Delete") {
+         event.preventDefault();
+         if (selectedRow) {
+            const confirmDeletion = confirm(
+               "Are you sure you want to delete this entry?"
+            );
+            if (confirmDeletion) {
+               const cells = selectedRow.querySelectorAll("td");
+               const accountName = cells[0]?.textContent;
+               const delettionResult = await window.electronAPI.deleteAccount(
+                  accountName
+               );
+
+               setStatusMessage(delettionResult.message);
+               if (delettionResult.success) {
+                  await refreshAccountsTable();
+               }
+            }
+         }
       }
    });
 }
