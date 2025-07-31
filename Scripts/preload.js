@@ -38,4 +38,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
    requestUpdateData: () => ipcRenderer.send("get-update-data"),
    onReceiveUpdateData: (callback) =>
       ipcRenderer.once("update-data", (event, data) => callback(data)),
+   updateAccount: (oldAccountName, newAccountdata) =>
+      ipcRenderer.invoke("update-account", {
+         oldAccountName,
+         updatedAccount: newAccountdata,
+      }),
 });
