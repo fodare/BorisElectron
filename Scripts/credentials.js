@@ -193,6 +193,80 @@ function readAccountFromFile() {
    }
 }
 
+function updateAccountInFile(
+   oldAccountName,
+   updatedAccount,
+   masterPassword,
+   saltHex
+) {
+   const readResult = readAccountFromFile();
+
+   if (!readResult.success) {
+      return { success: false, message: "Failed to read account on file." };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+   if (!keyResult.success) {
+      return { success: false, message: "Key derivation failed." };
+   }
+
+   const decryptedAccounts = readResult.data
+      .map((account) => {
+         const decrypted = decryptContent(
+            account.iv,
+            account.data,
+            keyResult.data
+         );
+         if (!decrypted.success) return null;
+
+         try {
+            const parsed = JSON.parse(decrypted.data);
+            if (!parsed || typeof parsed.name !== "string") {
+               return null;
+            }
+            return parsed;
+         } catch (err) {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const accountNameExist = decryptedAccounts.some(
+      (acc) => acc.name === updatedAccount.name && acc.name !== oldAccountName
+   );
+
+   if (accountNameExist) {
+      return {
+         success: false,
+         message: `An account named "${updatedAccount.name}" already exists.`,
+      };
+   }
+
+   const updatedList = decryptedAccounts.map((account) =>
+      account.name === oldAccountName ? updatedAccount : account
+   );
+
+   const encryptedAccounts = updatedList.map((account) => {
+      const encrypted = encryptContent(JSON.stringify(account), keyResult.data);
+      if (!encrypted.success) throw new Error("Encryption failed.");
+      return JSON.parse(encrypted.encryptedContent);
+   });
+
+   try {
+      fs.writeFileSync(
+         path.join(APP_DIR, "/Data/accounts.enc"),
+         JSON.stringify(encryptedAccounts, null, 3),
+         "utf8"
+      );
+      return { success: true, message: "Account updated successfully." };
+   } catch (error) {
+      return {
+         success: false,
+         message: `Failed to write updated accounts. ${error}`,
+      };
+   }
+}
+
 export {
    masterPasswordExist,
    encryptValidationToken,
@@ -204,4 +278,5 @@ export {
    decryptContent,
    writeAccountToFile,
    readAccountFromFile,
+   updateAccountInFile,
 };
