@@ -11,6 +11,7 @@ import {
    decryptContent,
    writeAccountToFile,
    readAccountFromFile,
+   updateAccountInFile,
 } from "./Scripts/credentials.js";
 
 let sessionMasterPassword = null;
@@ -284,3 +285,32 @@ ipcMain.on("render-update-window", (event, accountData) => {
       updateAccountWindow = null;
    });
 });
+
+ipcMain.handle(
+   "update-account",
+   (event, { oldAccountName, updatedAccount }) => {
+      if (!sessionMasterPassword || !sessionKey) {
+         return {
+            success: false,
+            message: "Master password not in session.",
+         };
+      }
+
+      const result = updateAccountInFile(
+         oldAccountName,
+         updatedAccount,
+         sessionMasterPassword,
+         sessionKey
+      );
+
+      if (result.success) {
+         const credentialsWin = BrowserWindow.getAllWindows().find((win) =>
+            win.webContents.getURL().includes("credentials.html")
+         );
+         if (credentialsWin) {
+            credentialsWin.webContents.send("refresh-accounts");
+         }
+      }
+      return result;
+   }
+);
