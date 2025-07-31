@@ -71,7 +71,6 @@ function getAddAccountInputs() {
 
 async function accountAlreadyExist(newAccountNameInput) {
    const { success, data } = await getSavedAccounts();
-   console.log(await getSavedAccounts());
    return (
       success && data.some((account) => account.name === newAccountNameInput)
    );
