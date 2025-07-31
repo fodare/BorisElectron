@@ -119,7 +119,7 @@ function addTableInteractions(tableBodyId) {
          event.preventDefault();
          if (selectedRow) {
             const confirmDeletion = confirm(
-               "Are you sure you want to delete this entry?"
+               "Are you sure you want to delete this entry?. Please note action is not reversible!"
             );
             if (confirmDeletion) {
                const cells = selectedRow.querySelectorAll("td");
