@@ -251,4 +251,5 @@ export {
    setupCredentialPageInteractions,
    setUpAddAccountPageIntractions,
    setUpUpdateAccountInteractions,
+   refreshAccountsTable,
 };
