@@ -70,10 +70,6 @@ function addTableInteractions(tableBodyId) {
       if (target.tagName === "TD") {
          selectedCell = target;
          selectedRow = target.parentElement;
-
-         //  clearSelection();
-         //  selectedCell.style.backgroundColor = "#d0f00";
-         //  selectedCell.style.backgroundColor = "#f0d00";
       }
    });
 
