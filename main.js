@@ -12,6 +12,7 @@ import {
    writeAccountToFile,
    readAccountFromFile,
    updateAccountInFile,
+   deleteAccountFromFile,
 } from "./Scripts/credentials.js";
 
 let sessionMasterPassword = null;
@@ -314,3 +315,29 @@ ipcMain.handle(
       return result;
    }
 );
+
+ipcMain.handle("delete-account", (event, accountName) => {
+   if (!sessionKey || !sessionMasterPassword) {
+      return {
+         success: false,
+         message: "Master password not in session",
+      };
+   }
+
+   const result = deleteAccountFromFile(
+      accountName,
+      sessionMasterPassword,
+      sessionKey
+   );
+
+   if (!result.success) {
+      const credentialsWin = BrowserWindow.getAllWindows().find((win) => {
+         win.webContents.getURL().includes("credentials.html");
+      });
+      if (credentialsWin) {
+         credentialsWin.webContents.send("refresh-accounts");
+      }
+   }
+
+   return result;
+});
