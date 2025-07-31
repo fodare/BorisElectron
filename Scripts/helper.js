@@ -1,3 +1,5 @@
+import { refreshAccountsTable } from "./accounts.js";
+
 function isMasterPasswordExist() {
    return window.electronAPI.checkForMasterPassword();
 }
@@ -63,25 +65,11 @@ function addTableInteractions(tableBodyId) {
    let selectedCell = null;
    let clipboardClearTimeout = null;
 
-   // Todo: Finish this
-   //    function clearSelection() {
-   //       tableBody
-   //          .querySelectorAll("td")
-   //          .forEach((td) => (td.style.backgroundColor = ""));
-   //       tableBody
-   //          .querySelectorAll("tr")
-   //          .forEach((tr) => (tr.style.backgroundColor = ""));
-   //    }
-
    tableBody.addEventListener("click", (event) => {
       const target = event.target;
       if (target.tagName === "TD") {
          selectedCell = target;
          selectedRow = target.parentElement;
-
-         //  clearSelection();
-         //  selectedCell.style.backgroundColor = "#d0f00";
-         //  selectedCell.style.backgroundColor = "#f0d00";
       }
    });
 
@@ -102,7 +90,7 @@ function addTableInteractions(tableBodyId) {
       }
    });
 
-   document.addEventListener("keydown", (event) => {
+   document.addEventListener("keydown", async (event) => {
       if (!selectedCell) {
          return;
       }
@@ -125,6 +113,27 @@ function addTableInteractions(tableBodyId) {
                });
             })
             .catch((error) => setStatusMessage(error));
+      }
+
+      if (event.key === "Delete") {
+         event.preventDefault();
+         if (selectedRow) {
+            const confirmDeletion = confirm(
+               "Are you sure you want to delete this entry?"
+            );
+            if (confirmDeletion) {
+               const cells = selectedRow.querySelectorAll("td");
+               const accountName = cells[0]?.textContent;
+               const delettionResult = await window.electronAPI.deleteAccount(
+                  accountName
+               );
+
+               setStatusMessage(delettionResult.message);
+               if (delettionResult.success) {
+                  await refreshAccountsTable();
+               }
+            }
+         }
       }
    });
 }

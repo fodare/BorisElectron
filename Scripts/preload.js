@@ -43,4 +43,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
          oldAccountName,
          updatedAccount: newAccountdata,
       }),
+   deleteAccount: (accountName) =>
+      ipcRenderer.invoke("delete-account", accountName),
 });

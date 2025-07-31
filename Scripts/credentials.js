@@ -267,6 +267,52 @@ function updateAccountInFile(
    }
 }
 
+function deleteAccountFromFile(accountName, masterPassword, saltHex) {
+   const readResult = readAccountFromFile();
+   if (!readResult.success) {
+      return { success: false, message: "Failed to read accounts from file." };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+   if (!keyResult.success) {
+      return { success: false, message: "Failed to derive key." };
+   }
+
+   const decryptedAccounts = readResult.data
+      .map((entry) => {
+         const decrypted = decryptContent(entry.iv, entry.data, keyResult.data);
+         if (!decrypted.success) return null;
+         try {
+            return JSON.parse(decrypted.data);
+         } catch {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const filtered = decryptedAccounts.filter((acc) => acc.name !== accountName);
+   if (filtered.length === decryptedAccounts.length) {
+      return { success: false, message: "Account not found." };
+   }
+
+   const encryptedAccounts = filtered.map((acc) => {
+      const enc = encryptContent(JSON.stringify(acc), keyResult.data);
+      if (!enc.success) throw new Error("Encryption failed.");
+      return JSON.parse(enc.encryptedContent);
+   });
+
+   try {
+      fs.writeFileSync(
+         ACCOUNTS_FILE,
+         JSON.stringify(encryptedAccounts, null, 3),
+         "utf8"
+      );
+      return { success: true, message: "Account deleted successfully." };
+   } catch (err) {
+      return { success: false, message: "Failed to write file." };
+   }
+}
+
 export {
    masterPasswordExist,
    encryptValidationToken,
@@ -279,4 +325,5 @@ export {
    writeAccountToFile,
    readAccountFromFile,
    updateAccountInFile,
+   deleteAccountFromFile,
 };
