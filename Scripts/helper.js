@@ -65,16 +65,6 @@ function addTableInteractions(tableBodyId) {
    let selectedCell = null;
    let clipboardClearTimeout = null;
 
-   // Todo: Finish this
-   //    function clearSelection() {
-   //       tableBody
-   //          .querySelectorAll("td")
-   //          .forEach((td) => (td.style.backgroundColor = ""));
-   //       tableBody
-   //          .querySelectorAll("tr")
-   //          .forEach((tr) => (tr.style.backgroundColor = ""));
-   //    }
-
    tableBody.addEventListener("click", (event) => {
       const target = event.target;
       if (target.tagName === "TD") {
