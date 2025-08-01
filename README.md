@@ -40,24 +40,30 @@ This project is a updated version of my initial [tk-inter implementation](https:
 
 ## 🚀 Getting Started
 
-### 1. Clone the repository
+### Local development
+
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/fodare/BorisElectron.git
 cd BorisElectron
 ```
 
-### 2. Install dependencies
+#### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Lauch the app
+#### 3. Lauch the app
 
 ```bash
 npm run start
 ```
+
+### Installation
+
+To be implemented soon!
 
 ## 🔒 Security Overview
 
