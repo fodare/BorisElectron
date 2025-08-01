@@ -36,7 +36,7 @@ function createWindow() {
    });
 
    mainWindow.loadFile(path.join(APP_DIR, "/Pages/login.html"));
-   mainWindow.webContents.openDevTools();
+   //mainWindow.webContents.openDevTools();
    mainWindow.on("closed", () => {
       mainWindow = null;
    });
@@ -137,7 +137,7 @@ ipcMain.on("render-account-prompt", (event) => {
    });
 
    accountPromptWindow.loadFile(path.join(APP_DIR, "/Pages/addAccount.html"));
-   accountPromptWindow.webContents.openDevTools();
+   //accountPromptWindow.webContents.openDevTools();
    accountPromptWindow.on("closed", () => {
       accountPromptWindow = null;
    });
@@ -280,7 +280,7 @@ ipcMain.on("render-update-window", (event, accountData) => {
    updateAccountWindow.loadFile(
       path.join(APP_DIR, "/Pages/updateAccount.html")
    );
-   updateAccountWindow.webContents.openDevTools();
+   //updateAccountWindow.webContents.openDevTools();
 
    updateAccountWindow.on("closed", () => {
       updateAccountWindow = null;
