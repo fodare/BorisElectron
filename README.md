@@ -59,6 +59,8 @@ npm install
 
 ```bash
 npm run start
+# For automatic re-reun on file changes, run...
+npm run watch
 ```
 
 ### Installation
