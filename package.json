@@ -1,13 +1,18 @@
 {
   "name": "boris",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "description": "Local electron app to help manage credentials, track finances...",
   "main": "main.js",
   "type": "module",
+  "bin": {
+    "boris": "dist/main.js"
+  },
   "scripts": {
     "test": "jest",
     "start": "electron .",
-    "watch": "nodemon --exec electron ."
+    "watch": "nodemon --exec electron .",
+    "build": "electron-builder --linux snap",
+    "local-build": "electron-builderbuild --dir"
   },
   "repository": {
     "type": "git",
@@ -28,11 +33,42 @@
     "babel-jest": "^30.0.5",
     "electron": "^37.2.3",
     "jest": "^30.0.5",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "electron-builder": "^23.6.0"
   },
   "build": {
+    "appId": "com.openops.boris",
+    "productName": "Boris",
+    "asar": true,
+    "files": [
+      "**/*",
+      "!Data/",
+      "!tests/",
+      "!.github/",
+      "!README.md",
+      "!LICENSE",
+      "!jest.config.js"
+    ],
     "linux": {
+      "target": [
+        "snap",
+        "deb"
+      ],
       "icon": "Assets/"
-    }
+    },
+    "snap": {
+      "grade": "stable",
+      "confinement": "strict",
+      "plugs": [
+        "home",
+        "network",
+        "desktop"
+      ]
+    },
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ]
   }
 }
