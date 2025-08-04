@@ -72,13 +72,13 @@ jobs:
 
          - name: Create and push tag
            if: env.EXISTS == 'false'
+           env:
+              PAT_TOKEN: ${{ secrets.GITACCESSTOKEN }}
            run: |
               git config user.name "GitHub Actions"
               git config user.email "actions@github.com"
               git tag $VERSION
-              git push origin $VERSION
-           env:
-              GITHUB_TOKEN: ${{ secrets.GITACCESSTOKEN }}
+              git push https://x-access-token:${GITACCESSTOKEN}@github.com/${{ github.repository }} $VERSION
 
    release:
       needs: tag-version
