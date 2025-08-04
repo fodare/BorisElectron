@@ -51,7 +51,7 @@ async function injectNavbar() {
          });
       });
    } catch (err) {
-      console.error("Failed to load navbar:", err);
+      console.error("Failed to load navbar:", err.message);
    }
 }
 
@@ -108,11 +108,11 @@ function addTableInteractions(tableBodyId) {
                   clipboardClearTimeout = setTimeout(() => {
                      navigator.clipboard
                         .writeText("")
-                        .catch((error) => setStatusMessage(error));
+                        .catch((error) => setStatusMessage(error.message));
                   }, 3000);
                });
             })
-            .catch((error) => setStatusMessage(error));
+            .catch((error) => setStatusMessage(error.message));
       }
 
       if (event.key === "Delete") {
