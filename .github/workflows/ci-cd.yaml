@@ -15,38 +15,26 @@ on:
          - "**/.gitattributes"
 
 jobs:
-   build-and-test:
+   build-and-package:
       runs-on: ubuntu-latest
+
       steps:
          - uses: actions/checkout@v3
-           with:
-              fetch-depth: 0
 
          - name: Set up Node.js
            uses: actions/setup-node@v3
            with:
-              node-version: "20"
+              node-version: "22"
 
          - name: Install dependencies
            run: npm install
 
-         - name: Run tests
-           run: npm test
+         - name: Run tests (Electron sandbox disabled)
+           run: npm run ci-test
 
-         - name: Bump version and push tag
-           if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-           run: |
-              git config user.name "github-actions[bot]"
-              git config user.email "github-actions[bot]@users.noreply.github.com"
-              npm version patch -m "ci: release v%s [skip ci]"
-              git push --follow-tags
+         - name: Build Snap package
            env:
-              GITHUB_TOKEN: ${{ secrets.GITACCESSTOKEN }}
-
-         - name: Fix app-builder execute permission
-           run: chmod +x node_modules/app-builder-bin/linux/x64/app-builder
-
-         - name: Build electron app
+              ELECTRON_DISABLE_SANDBOX: 1
            run: npm run build
 
          - name: Upload build artifacts
@@ -56,10 +44,47 @@ jobs:
               path: dist/
               if-no-files-found: error
 
-   release:
-      needs: build-and-test
+   tag-version:
+      needs: build-and-package
       runs-on: ubuntu-latest
       if: github.ref == 'refs/heads/main'
+
+      steps:
+         - uses: actions/checkout@v3
+
+         - name: Extract version from package.json
+           id: get_version
+           run: |
+              VERSION=v$(node -p "require('./package.json').version")
+              echo "VERSION=$VERSION" >> $GITHUB_ENV
+              echo "Detected version: $VERSION"
+
+         - name: Check if tag already exists
+           id: check_tag
+           run: |
+              if git rev-parse "$VERSION" >/dev/null 2>&1; then
+                echo "Tag $VERSION already exists"
+                echo "EXISTS=true" >> $GITHUB_ENV
+              else
+                echo "Tag $VERSION does not exist"
+                echo "EXISTS=false" >> $GITHUB_ENV
+              fi
+
+         - name: Create and push tag
+           if: env.EXISTS == 'false'
+           run: |
+              git config user.name "GitHub Actions"
+              git config user.email "actions@github.com"
+              git tag $VERSION
+              git push origin $VERSION
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITACCESSTOKEN }}
+
+   release:
+      needs: tag-version
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/main'
+
       steps:
          - uses: actions/checkout@v3
 

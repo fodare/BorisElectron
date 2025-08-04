@@ -12,7 +12,10 @@
     "start": "electron .",
     "watch": "nodemon --exec electron .",
     "build": "electron-builder --linux snap",
-    "local-build": "electron-builder build --dir"
+    "local-build": "electron-builder build --dir",
+    "fix-sandbox": "sudo chown root:root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox",
+    "ci-start": "ELECTRON_DISABLE_SANDBOX=1 electron .",
+    "ci-test": "ELECTRON_DISABLE_SANDBOX=1 jest"
   },
   "repository": {
     "type": "git",
@@ -32,43 +35,8 @@
     "@babel/preset-env": "^7.28.0",
     "babel-jest": "^30.0.5",
     "electron": "^37.2.3",
+    "electron-builder": "^23.6.0",
     "jest": "^30.0.5",
-    "nodemon": "^3.1.10",
-    "electron-builder": "^23.6.0"
-  },
-  "build": {
-    "appId": "com.openops.boris",
-    "productName": "Boris",
-    "asar": true,
-    "files": [
-      "**/*",
-      "!Data/",
-      "!tests/",
-      "!.github/",
-      "!README.md",
-      "!LICENSE",
-      "!jest.config.js"
-    ],
-    "linux": {
-      "target": [
-        "snap",
-        "deb"
-      ],
-      "icon": "Assets/"
-    },
-    "snap": {
-      "grade": "stable",
-      "confinement": "strict",
-      "plugs": [
-        "home",
-        "network",
-        "desktop"
-      ]
-    },
-    "publish": [
-      {
-        "provider": "github"
-      }
-    ]
+    "nodemon": "^3.1.10"
   }
 }
