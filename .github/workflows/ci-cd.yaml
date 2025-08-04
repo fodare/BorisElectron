@@ -19,6 +19,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v3
+           with:
+              fetch-depth: 0
 
          - name: Set up Node.js
            uses: actions/setup-node@v3
@@ -32,6 +34,7 @@ jobs:
            run: npm test
 
          - name: Bump version and push tag
+           if: github.ref == 'refs/heads/main' && github.event_name == 'push'
            run: |
               git config user.name "github-actions[bot]"
               git config user.email "github-actions[bot]@users.noreply.github.com"
