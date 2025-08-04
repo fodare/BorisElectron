@@ -20,6 +20,8 @@ jobs:
 
       steps:
          - uses: actions/checkout@v3
+           with:
+              fetch-depth: 0
 
          - name: Set up Node.js
            uses: actions/setup-node@v3
@@ -44,49 +46,15 @@ jobs:
               path: dist/
               if-no-files-found: error
 
-   tag-version:
+   release:
       needs: build-and-package
       runs-on: ubuntu-latest
       if: github.ref == 'refs/heads/main'
 
       steps:
          - uses: actions/checkout@v3
-
-         - name: Extract version from package.json
-           id: get_version
-           run: |
-              VERSION=v$(node -p "require('./package.json').version")
-              echo "VERSION=$VERSION" >> $GITHUB_ENV
-              echo "Detected version: $VERSION"
-
-         - name: Check if tag already exists
-           id: check_tag
-           run: |
-              if git rev-parse "$VERSION" >/dev/null 2>&1; then
-                echo "Tag $VERSION already exists"
-                echo "EXISTS=true" >> $GITHUB_ENV
-              else
-                echo "Tag $VERSION does not exist"
-                echo "EXISTS=false" >> $GITHUB_ENV
-              fi
-
-         - name: Create and push tag
-           if: env.EXISTS == 'false'
-           env:
-              PAT_TOKEN: ${{ secrets.GITACCESSTOKEN }}
-           run: |
-              git config user.name "GitHub Actions"
-              git config user.email "actions@github.com"
-              git tag $VERSION
-              git push https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }} $VERSION
-
-   release:
-      needs: tag-version
-      runs-on: ubuntu-latest
-      if: github.ref == 'refs/heads/main'
-
-      steps:
-         - uses: actions/checkout@v3
+           with:
+              fetch-depth: 0
 
          - name: Download build artifacts
            uses: actions/download-artifact@v4
@@ -101,7 +69,7 @@ jobs:
                  ./artifacts/*.snap
                  ./artifacts/*.deb
            env:
-              GITHUB_TOKEN: ${{ secrets.GITACCESSTOKEN }}
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
          - name: Install Snapcraft
            run: sudo snap install snapcraft --classic
