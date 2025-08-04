@@ -1,6 +1,6 @@
 jest.mock("electron", () => ({
    app: {
-      getAppPath: () => "/mock/path",
+      getPath: () => "/mock/path",
    },
 }));
 
