@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    if (path.endsWith("login.html")) {
       const loginBtn = document.getElementById("loginBtn");
       const registerBtn = document.getElementById("registerBtn");
+      const pageHeader = document.getElementById("authtitle");
 
       loginBtn?.addEventListener("click", () => {
          loginBtn.disabled = true;
@@ -26,9 +27,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       registerBtn?.addEventListener("click", handleRegister);
 
       if (masterPasswordExist) {
+         pageHeader.textContent = "Login";
          loginBtn.style.display = "block";
          registerBtn.style.display = "none";
       } else {
+         pageHeader.textContent = "Register";
          loginBtn.style.display = "none";
          registerBtn.style.display = "block";
       }
