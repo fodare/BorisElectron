@@ -78,7 +78,7 @@ jobs:
               git config user.name "GitHub Actions"
               git config user.email "actions@github.com"
               git tag $VERSION
-              git push https://x-access-token:${GITACCESSTOKEN}@github.com/${{ github.repository }} $VERSION
+              git push https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }} $VERSION
 
    release:
       needs: tag-version
