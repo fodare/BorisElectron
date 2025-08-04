@@ -1,5 +1,5 @@
 {
-  "name": "boris",
+  "name": "openops-boris",
   "version": "0.0.9",
   "description": "Local electron app to help manage credentials, track finances...",
   "main": "main.js",
