@@ -1,14 +1,23 @@
 {
   "name": "boris",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "description": "Local electron app to help manage credentials, track finances...",
   "main": "main.js",
   "type": "module",
+  "bin": {
+    "boris": "dist/main.js"
+  },
   "scripts": {
     "test": "jest",
     "start": "electron .",
-    "watch": "nodemon --exec electron ."
+    "watch": "nodemon --exec electron .",
+    "build": "electron-builder --linux snap",
+    "local-build": "electron-builder build --dir",
+    "fix-sandbox": "sudo chown root:root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox",
+    "ci-start": "ELECTRON_DISABLE_SANDBOX=1 electron .",
+    "ci-test": "ELECTRON_DISABLE_SANDBOX=1 jest"
   },
+  "icon": "Assets/icon.png",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fodare/BorisElectron.git"
@@ -27,12 +36,32 @@
     "@babel/preset-env": "^7.28.0",
     "babel-jest": "^30.0.5",
     "electron": "^37.2.3",
+    "electron-builder": "^23.6.0",
     "jest": "^30.0.5",
     "nodemon": "^3.1.10"
   },
   "build": {
+    "appId": "com.openops.boris",
+    "productName": "Boris",
+    "icon": "Assets/Boris.png",
+    "files": [
+      "dist/**/*",
+      "Assets/**/*",
+      "Components/**/*",
+      "Data/**/*",
+      "Pages/**/*",
+      "Scripts/**/*",
+      "main.js",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "Assets"
+    },
     "linux": {
-      "icon": "Assets/"
+      "target": [
+        "snap"
+      ],
+      "category": "Utility"
     }
   }
 }

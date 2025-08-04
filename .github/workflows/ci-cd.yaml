@@ -1,0 +1,115 @@
+name: build_publish_snap
+
+on:
+   push:
+      branches: [main]
+      paths-ignore:
+         - "**/*.md"
+         - "**/.gitignore"
+         - "**/.gitattributes"
+   pull_request:
+      branches: [main]
+      paths-ignore:
+         - "**/*.md"
+         - "**/.gitignore"
+         - "**/.gitattributes"
+
+jobs:
+   build-and-package:
+      runs-on: ubuntu-latest
+
+      steps:
+         - uses: actions/checkout@v3
+
+         - name: Set up Node.js
+           uses: actions/setup-node@v3
+           with:
+              node-version: "22"
+
+         - name: Install dependencies
+           run: npm install
+
+         - name: Run tests (Electron sandbox disabled)
+           run: npm run ci-test
+
+         - name: Build Snap package
+           env:
+              ELECTRON_DISABLE_SANDBOX: 1
+           run: npm run build
+
+         - name: Upload build artifacts
+           uses: actions/upload-artifact@v4
+           with:
+              name: electron-build
+              path: dist/
+              if-no-files-found: error
+
+   tag-version:
+      needs: build-and-package
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/main'
+
+      steps:
+         - uses: actions/checkout@v3
+
+         - name: Extract version from package.json
+           id: get_version
+           run: |
+              VERSION=v$(node -p "require('./package.json').version")
+              echo "VERSION=$VERSION" >> $GITHUB_ENV
+              echo "Detected version: $VERSION"
+
+         - name: Check if tag already exists
+           id: check_tag
+           run: |
+              if git rev-parse "$VERSION" >/dev/null 2>&1; then
+                echo "Tag $VERSION already exists"
+                echo "EXISTS=true" >> $GITHUB_ENV
+              else
+                echo "Tag $VERSION does not exist"
+                echo "EXISTS=false" >> $GITHUB_ENV
+              fi
+
+         - name: Create and push tag
+           if: env.EXISTS == 'false'
+           run: |
+              git config user.name "GitHub Actions"
+              git config user.email "actions@github.com"
+              git tag $VERSION
+              git push origin $VERSION
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITACCESSTOKEN }}
+
+   release:
+      needs: tag-version
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/main'
+
+      steps:
+         - uses: actions/checkout@v3
+
+         - name: Download build artifacts
+           uses: actions/download-artifact@v4
+           with:
+              name: electron-build
+              path: ./artifacts
+
+         - name: Create GitHub Release
+           uses: softprops/action-gh-release@v1
+           with:
+              files: |
+                 ./artifacts/*.snap
+                 ./artifacts/*.deb
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITACCESSTOKEN }}
+
+         - name: Install Snapcraft
+           run: sudo snap install snapcraft --classic
+
+         - name: Login to Snapcraft
+           env:
+              SNAPCRAFT_LOGIN_TOKEN: ${{ secrets.SNAPCRAFT_LOGIN_TOKEN }}
+           run: echo "$SNAPCRAFT_LOGIN_TOKEN" | snapcraft login --with -
+
+         - name: Push Snap package to Ubuntu Store
+           run: snapcraft push ./artifacts/*.snap --release stable
