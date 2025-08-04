@@ -28,6 +28,7 @@ async function handleRegister() {
       setStatusMessage(registrationStatus.message);
    } else {
       setStatusMessage(registrationStatus.message);
+      window.electronAPI.navigateTo("credentials.html");
    }
 }
 
