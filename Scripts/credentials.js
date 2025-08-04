@@ -3,7 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import { app } from "electron";
 
-let APP_DIR = app.getAppPath();
+let APP_DIR = app.getPath("userData");
 let MASTER_PASS_FILE = path.join(APP_DIR, "/Data/password.enc");
 let ACCOUNTS_FILE = path.join(APP_DIR, "/Data/accounts.enc");
 
@@ -72,10 +72,6 @@ function readMasterPassword() {
    const encrypted = fs.readFileSync(MASTER_PASS_FILE, "utf-8");
    return encrypted;
 }
-
-// function deleteMasterPassword() {
-//    if (fs.existsSync(MASTER_PASS_FILE)) fs.unlinkSync(MASTER_PASS_FILE);
-// }
 
 // ---------- Other encryption logic ---------- //
 
