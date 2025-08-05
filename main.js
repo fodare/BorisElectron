@@ -14,6 +14,7 @@ import {
    updateAccountInFile,
    deleteAccountFromFile,
 } from "./Scripts/credentials.js";
+import { setUpAppMenu } from "./Scripts/appMenus.js";
 
 let sessionMasterPassword = null;
 let sessionKey = null;
@@ -44,6 +45,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
    createWindow();
+   setUpAppMenu();
 });
 
 app.on("window-all-closed", () => {
