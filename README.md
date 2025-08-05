@@ -65,7 +65,7 @@ npm run watch
 
 ### Installation
 
-To be implemented soon!
+[![Get it from the Snap Store](https://snapcraft.io/en/dark/install.svg)](https://snapcraft.io/openops-boris)
 
 ## 🔒 Security Overview
 
