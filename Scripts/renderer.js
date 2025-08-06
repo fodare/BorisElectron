@@ -3,6 +3,7 @@ import {
    isMasterPasswordExist,
    injectNavbar,
    addTableInteractions,
+   monitorAppInactivity,
 } from "./helper.js";
 import {
    setupCredentialPageInteractions,
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
    const masterPasswordExist = await isMasterPasswordExist();
    await injectNavbar();
+   await monitorAppInactivity();
 
    if (path.endsWith("login.html")) {
       const loginBtn = document.getElementById("loginBtn");

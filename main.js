@@ -343,3 +343,9 @@ ipcMain.handle("delete-account", (event, accountName) => {
 
    return result;
 });
+
+ipcMain.on("inactive-timeout", () => {
+   sessionKey = null;
+   sessionMasterPassword = null;
+   app.quit();
+});

@@ -75,13 +75,13 @@ This is a personal-use app. For production-scale use, consider a full security a
 
 - [x] Master password authentication.
 - [x] Add/update/delete credentials.
-- [x] Local AES encryption
-- [x] Hotkey support
-- [ ] Secure notes (Markdown editor)
-- [ ] Local finance tracker
-- [ ] Export/import (encrypted backup)
-- [ ] Auto-lock on inactivity
-- [ ] Dark mode toggle
+- [x] Local AES encryption.
+- [x] Hotkey support.
+- [ ] Secure notes (Markdown editor).
+- [ ] Local finance tracker.
+- [ ] Export/import (encrypted backup).
+- [x] Auto-lock on inactivity (5 min inactivity trigger).
+- [ ] Dark mode toggle.
 
 ## 🤝 Contributing
 
