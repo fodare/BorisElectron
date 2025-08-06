@@ -45,4 +45,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
       }),
    deleteAccount: (accountName) =>
       ipcRenderer.invoke("delete-account", accountName),
+   sendInactiveSession: () => ipcRenderer.send("inactive-timeout"),
 });
