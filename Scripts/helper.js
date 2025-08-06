@@ -138,10 +138,40 @@ function addTableInteractions(tableBodyId) {
    });
 }
 
+async function monitorAppInactivity(
+   inactivityLimit = 300,
+   throttleDuration = 500
+) {
+   let lastActvity = Date.now();
+   let throttleTimeout = null;
+   function resetTimer() {
+      if (!throttleTimeout) {
+         lastActvity = Date.now();
+         throttleTimeout = setTimeout(() => {
+            throttleTimeout = null;
+         }, throttleDuration);
+      }
+   }
+
+   ["mousemove", "keydown", "mousedown", "scroll", "touchstart"].forEach(
+      (event) => {
+         window.addEventListener(event, resetTimer);
+      }
+   );
+
+   setInterval(() => {
+      const inactiveTime = (Date.now() - lastActvity) / 1000;
+      if (inactiveTime >= inactivityLimit) {
+         window.electronAPI.sendInactiveSession();
+      }
+   }, 1000);
+}
+
 export {
    isMasterPasswordExist,
    getMasterPassWordInput,
    setStatusMessage,
    injectNavbar,
    addTableInteractions,
+   monitorAppInactivity,
 };
