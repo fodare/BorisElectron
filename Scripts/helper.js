@@ -9,13 +9,30 @@ function getMasterPassWordInput() {
 }
 
 function setStatusMessage(message) {
-   const messageElement = document.getElementById("statusMessage");
-   if (messageElement) {
-      messageElement.textContent = message;
-      setTimeout(() => {
-         messageElement.textContent = "";
-      }, 3500);
-   }
+   const toastContainer =
+      document.getElementById("toast-container") ||
+      (() => {
+         const container = document.createElement("div");
+         container.id = "toast-container";
+         container.classList.add("position-fixed", "top-0", "end-0", "p-3");
+         document.body.appendChild(container);
+         return container;
+      })();
+
+   const toast = document.createElement("div");
+   toast.classList.add("toast");
+   toast.setAttribute("role", "alert");
+   toast.innerHTML = `
+      <div class="toast-header">
+         <strong class="me-auto">Notification</strong>
+         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">${message}</div>
+   `;
+   toastContainer.appendChild(toast);
+
+   new bootstrap.Toast(toast, { delay: 3500 }).show();
+   toast.addEventListener("hidden.bs.toast", () => toast.remove());
 }
 
 async function injectNavbar() {
