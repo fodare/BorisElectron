@@ -70,6 +70,10 @@ body{
   -webkit-text-security: none;
 }
 
+.toast-body{
+  background-color: #1c1e24 !important;
+}
+
 
 /* Navbar styling */
 
