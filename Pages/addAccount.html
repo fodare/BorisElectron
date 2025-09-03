@@ -20,42 +20,54 @@
       <div class="container-fluid centered-form-container">
          <div class="form-box">
             <h1 class="page-heading add-account-header">Add New Account</h1>
-            <input
-               type="text"
-               class="form-control"
-               id="accountNameInput"
-               placeholder="Enter account name..."
-            />
-            <input
-               type="text"
-               class="form-control"
-               id="usernameInput"
-               placeholder="Enter account username..."
-            />
-            <input
-               type="text"
-               class="form-control hidetext"
-               id="passwordInput"
-               placeholder="Enter account password..."
-            />
-            <input
-               type="text"
-               class="form-control"
-               id="urlInput"
-               placeholder="Enter account URL..."
-            />
-            <textarea
-               class="form-control"
-               id="accountNote"
-               rows="3"
-               placeholder="Notes..."
-            ></textarea>
-            <button
-               class="btn btn-outline-secondary add-accountBtn"
-               id="addAccountBtn"
-            >
-               Add Account
-            </button>
+            <div class="row g-0">
+               <div class="accountHelpers col-12 col-md-12 text-start">
+                  <button
+                     class="btn btn-outline-secondary generateAccountBtn"
+                     id="generateAccountBtn"
+                  >
+                     Generate Random Info
+                  </button>
+               </div>
+               <div class="accountForm col-12 col-md-12">
+                  <input
+                     type="text"
+                     class="form-control"
+                     id="accountNameInput"
+                     placeholder="Enter account name..."
+                  />
+                  <input
+                     type="text"
+                     class="form-control"
+                     id="usernameInput"
+                     placeholder="Enter account username..."
+                  />
+                  <input
+                     type="text"
+                     class="form-control hidetext"
+                     id="passwordInput"
+                     placeholder="Enter account password..."
+                  />
+                  <input
+                     type="text"
+                     class="form-control"
+                     id="urlInput"
+                     placeholder="Enter account URL..."
+                  />
+                  <textarea
+                     class="form-control"
+                     id="accountNote"
+                     rows="3"
+                     placeholder="Notes..."
+                  ></textarea>
+                  <button
+                     class="btn btn-outline-secondary add-accountBtn"
+                     id="addAccountBtn"
+                  >
+                     Add Account
+                  </button>
+               </div>
+            </div>
          </div>
       </div>
       <script
