@@ -1,3 +1,4 @@
+[![build_and_publish_snap](https://github.com/fodare/BorisElectron/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/fodare/BorisElectron/actions/workflows/ci-cd.yaml)
 # 🔐 Boris
 
 A secure, offline-first desktop app built with **Electron** to help manage **passwords/accounts**, track **finances**, and take **personal notes** — all encrypted and stored locally.
