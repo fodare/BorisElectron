@@ -1,4 +1,8 @@
-import { setStatusMessage } from "./helper.js";
+import {
+   setStatusMessage,
+   generateUsername,
+   generateUserFriendlyPassword,
+} from "./helper.js";
 
 async function setupCredentialPageInteractions() {
    window.electronAPI.onRefreshAccounts(async () => {
@@ -78,6 +82,7 @@ async function accountAlreadyExist(newAccountNameInput) {
 
 async function setUpAddAccountPageIntractions() {
    const saveAccountBtn = document.getElementById("addAccountBtn");
+   const generateRandomInfoBtn = document.getElementById("generateAccountBtn");
    saveAccountBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
       const {
@@ -104,6 +109,25 @@ async function setUpAddAccountPageIntractions() {
          accountUrl,
          accountNotes
       );
+   });
+
+   generateRandomInfoBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const randomPassword = await generateUserFriendlyPassword(20);
+      const randomUserName = await generateUsername();
+
+      const userNameInput = document.getElementById("usernameInput");
+      const passwordInput = document.getElementById("passwordInput");
+
+      if (userNameInput) {
+         userNameInput.value = "";
+         userNameInput.value = randomUserName;
+      }
+
+      if (passwordInput) {
+         passwordInput.value = "";
+         passwordInput.value = randomPassword;
+      }
    });
 }
 
