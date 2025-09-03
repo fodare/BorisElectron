@@ -68,7 +68,7 @@ async function injectNavbar() {
          });
       });
    } catch (err) {
-      console.error("Failed to load navbar:", err.message);
+      setStatusMessage(`Failed to load navbar: ${err.message}`);
    }
 }
 
