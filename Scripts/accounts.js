@@ -129,6 +129,34 @@ async function setUpAddAccountPageIntractions() {
          passwordInput.value = randomPassword;
       }
    });
+
+   document.addEventListener("keydown", async (event) => {
+      if (event.key === "Escape") {
+         const accountName = document.getElementById("accountNameInput")?.value;
+         const userName = document.getElementById("usernameInput")?.value;
+         const passwordinput = document.getElementById("passwordInput")?.value;
+         const urlinput = document.getElementById("urlInput")?.value;
+         const accountNote = document.getElementById("accountNote")?.value;
+         if (
+            accountName ||
+            userName ||
+            passwordinput ||
+            urlinput ||
+            accountNote
+         ) {
+            const confirmEscape = confirm(
+               "Are you sure you want to exit window ? All info enterd without saving will be lost!"
+            );
+            if (confirmEscape) {
+               await window.electronAPI.closeAddAccountWindow();
+               await refreshAccountsTable();
+            }
+         } else {
+            await window.electronAPI.closeAddAccountWindow();
+            await refreshAccountsTable();
+         }
+      }
+   });
 }
 
 async function saveNewAccountInfo(
