@@ -21,21 +21,41 @@ document.addEventListener("DOMContentLoaded", async () => {
       const loginBtn = document.getElementById("loginBtn");
       const registerBtn = document.getElementById("registerBtn");
       const pageHeader = document.getElementById("authtitle");
+      const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+      const renderLoginBtn = document.getElementById("renderLoginBtn");
 
       loginBtn?.addEventListener("click", () => {
          loginBtn.disabled = true;
          handleLogin().finally(() => (loginBtn.disabled = false));
       });
+
       registerBtn?.addEventListener("click", handleRegister);
+
+      forgotPasswordBtn?.addEventListener("click", () => {
+         loginBtn.style.display = "none";
+         forgotPasswordBtn.style.display = "none";
+         registerBtn.style.display = "block";
+         renderLoginBtn.style.display = "block";
+      });
+
+      renderLoginBtn?.addEventListener("click", () => {
+         loginBtn.style.display = "block";
+         forgotPasswordBtn.style.display = "block";
+         registerBtn.style.display = "none";
+         renderLoginBtn.style.display = "none ";
+      });
 
       if (masterPasswordExist) {
          pageHeader.textContent = "Login";
          loginBtn.style.display = "block";
          registerBtn.style.display = "none";
+         renderLoginBtn.style.display = "none";
       } else {
          pageHeader.textContent = "Register";
          loginBtn.style.display = "none";
+         forgotPasswordBtn.display = "none";
          registerBtn.style.display = "block";
+         renderLoginBtn.style.display = "block";
       }
    }
 

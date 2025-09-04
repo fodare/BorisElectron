@@ -107,6 +107,22 @@ body{
     max-width: 30rem;
 }
 
+.forgotPasswordBtn{
+  color: var(--text-color)!important;
+}
+
+.forgotPasswordBtn:hover{
+  color:  lightblue !important;
+}
+
+.renderLoginBtn{
+  color: var(--text-color)!important;
+}
+
+.renderLoginBtn:hover{
+  color:  lightblue !important;
+}
+
 /* Credentials styling */
 
 .page-heading{
