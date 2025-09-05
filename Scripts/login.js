@@ -1,4 +1,8 @@
-import { getMasterPassWordInput, setStatusMessage } from "./helper.js";
+import {
+   getMasterPassWordInput,
+   setStatusMessage,
+   isMasterPasswordExist,
+} from "./helper.js";
 
 async function handleLogin() {
    const passwordInput = getMasterPassWordInput();
@@ -17,18 +21,46 @@ async function handleLogin() {
 
 async function handleRegister() {
    const passwordInput = getMasterPassWordInput();
+
    if (!passwordInput) {
-      setStatusMessage("Please enter a vlaid master-password!");
+      setStatusMessage("Please enter a valid master password!");
       return;
    }
-   const registrationStatus = await window.electronAPI.createMasterPassword(
-      passwordInput
-   );
-   if (!registrationStatus.success) {
+
+   try {
+      const masterPasswordExists = await isMasterPasswordExist();
+
+      if (masterPasswordExists) {
+         const warningMessage = `A master password has already been set.\n\nCreating a new master password will make any previously saved data permanently inaccessible, as it cannot be decrypted without the original password.\n\nDo you want to proceed anyway?`;
+
+         const userConfirmed = await window.electronAPI.showConfirmationDialog(
+            "warning",
+            warningMessage
+         );
+
+         if (!userConfirmed) {
+            setStatusMessage(
+               "Registration cancelled. Existing data remains safe."
+            );
+            return;
+         }
+      }
+
+      const registrationStatus = await window.electronAPI.createMasterPassword(
+         passwordInput
+      );
+
+      if (!registrationStatus.success) {
+         setStatusMessage(registrationStatus.message);
+         return;
+      }
+
       setStatusMessage(registrationStatus.message);
-   } else {
-      setStatusMessage(registrationStatus.message);
-      window.electronAPI.navigateTo("credentials.html");
+      setTimeout(() => {
+         window.electronAPI.navigateTo("login.html");
+      }, 1500);
+   } catch (error) {
+      setStatusMessage(`Error registering. ${error.message}`);
    }
 }
 
