@@ -21,37 +21,47 @@ async function handleLogin() {
 
 async function handleRegister() {
    const passwordInput = getMasterPassWordInput();
-   const appInfo = await window.electronAPI.appInfo();
 
    if (!passwordInput) {
       setStatusMessage("Please enter a valid master password!");
       return;
    }
 
-   if (isMasterPasswordExist()) {
-      const warningMessage = `A master password has already been set.\n\nLocation: ${appInfo.appDataDir}\n\nCreating a new master password will make any previously saved data permanently inaccessible, as it cannot be decrypted without the original password.\n\nDo you want to proceed anyway?`;
+   try {
+      const masterPasswordExists = await isMasterPasswordExist();
 
-      const userConfirmed = window.confirm(warningMessage);
+      if (masterPasswordExists) {
+         const warningMessage = `A master password has already been set.\n\nCreating a new master password will make any previously saved data permanently inaccessible, as it cannot be decrypted without the original password.\n\nDo you want to proceed anyway?`;
 
-      if (!userConfirmed) {
-         setStatusMessage(
-            "Registration cancelled. Existing data remains safe."
+         const userConfirmed = await window.electronAPI.showConfirmationDialog(
+            "warning",
+            warningMessage
          );
+
+         if (!userConfirmed) {
+            setStatusMessage(
+               "Registration cancelled. Existing data remains safe."
+            );
+            return;
+         }
+      }
+
+      const registrationStatus = await window.electronAPI.createMasterPassword(
+         passwordInput
+      );
+
+      if (!registrationStatus.success) {
+         setStatusMessage(registrationStatus.message);
          return;
       }
-   }
 
-   const registrationStatus = await window.electronAPI.createMasterPassword(
-      passwordInput
-   );
-
-   if (!registrationStatus.success) {
       setStatusMessage(registrationStatus.message);
-      return;
+      setTimeout(() => {
+         window.electronAPI.navigateTo("login.html");
+      }, 1500);
+   } catch (error) {
+      setStatusMessage(`Error registering. ${error.message}`);
    }
-
-   setStatusMessage(registrationStatus.message);
-   window.electronAPI.navigateTo("credentials.html");
 }
 
 export { handleLogin, handleRegister };
