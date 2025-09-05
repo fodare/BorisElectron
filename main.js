@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 import {
    masterPasswordExist,
@@ -59,12 +59,6 @@ app.on("activate", () => {
 });
 
 ipcMain.handle("create-master-password", (event, { passwordInput }) => {
-   if (masterPasswordExist()) {
-      return {
-         success: false,
-         message: "Master password already exists. Please login instead.",
-      };
-   }
    try {
       const encrypted = encryptValidationToken(passwordInput);
       writeMasterPassword(encrypted);
@@ -355,4 +349,16 @@ ipcMain.handle("read-app-info", async (event) => {
       appVersion: app.getVersion(),
       appDataDir: app.getPath("userData"),
    };
+});
+
+ipcMain.handle("show-confirmation-dialog", async (event, { type, message }) => {
+   const result = await dialog.showMessageBox(mainWindow, {
+      type: type || "warning",
+      buttons: ["Yes", "No"],
+      defaultId: 1,
+      title: app.getName() || "Confirm",
+      message: message,
+      cancelId: 1,
+   });
+   return result.response === 0;
 });
