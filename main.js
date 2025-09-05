@@ -349,3 +349,10 @@ ipcMain.on("inactive-timeout", () => {
    sessionMasterPassword = null;
    app.quit();
 });
+
+ipcMain.handle("read-app-info", async (event) => {
+   return {
+      appVersion: app.getVersion(),
+      appDataDir: app.getPath("userData"),
+   };
+});

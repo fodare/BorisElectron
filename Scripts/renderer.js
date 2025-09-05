@@ -24,38 +24,45 @@ document.addEventListener("DOMContentLoaded", async () => {
       const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
       const renderLoginBtn = document.getElementById("renderLoginBtn");
 
-      loginBtn?.addEventListener("click", () => {
-         loginBtn.disabled = true;
-         handleLogin().finally(() => (loginBtn.disabled = false));
-      });
-
-      registerBtn?.addEventListener("click", handleRegister);
-
-      forgotPasswordBtn?.addEventListener("click", () => {
-         loginBtn.style.display = "none";
-         forgotPasswordBtn.style.display = "none";
-         registerBtn.style.display = "block";
-         renderLoginBtn.style.display = "block";
-      });
-
-      renderLoginBtn?.addEventListener("click", () => {
-         loginBtn.style.display = "block";
-         forgotPasswordBtn.style.display = "block";
-         registerBtn.style.display = "none";
-         renderLoginBtn.style.display = "none ";
-      });
-
-      if (masterPasswordExist) {
+      function showLoginContent() {
          pageHeader.textContent = "Login";
          loginBtn.style.display = "block";
          registerBtn.style.display = "none";
          renderLoginBtn.style.display = "none";
-      } else {
+         forgotPasswordBtn.style.display = "block";
+      }
+
+      function showRegisterContent() {
          pageHeader.textContent = "Register";
          loginBtn.style.display = "none";
-         forgotPasswordBtn.display = "none";
+         forgotPasswordBtn.style.display = "none";
          registerBtn.style.display = "block";
          renderLoginBtn.style.display = "block";
+      }
+
+      loginBtn?.addEventListener("click", async () => {
+         loginBtn.disabled = true;
+         await handleLogin().finally(() => (loginBtn.disabled = false));
+      });
+
+      registerBtn?.addEventListener("click", async (event) => {
+         event.preventDefault();
+         registerBtn.disabled = true;
+         await handleRegister().finally(() => (registerBtn.disabled = false));
+      });
+
+      forgotPasswordBtn?.addEventListener("click", () => {
+         showRegisterContent();
+      });
+
+      renderLoginBtn?.addEventListener("click", () => {
+         showLoginContent();
+      });
+
+      if (masterPasswordExist) {
+         showLoginContent();
+      } else {
+         showRegisterContent();
       }
    }
 
