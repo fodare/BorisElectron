@@ -1,4 +1,5 @@
 [![build_and_publish_snap](https://github.com/fodare/BorisElectron/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/fodare/BorisElectron/actions/workflows/ci-cd.yaml)
+
 # 🔐 Boris
 
 A secure, offline-first desktop app built with **Electron** to help manage **passwords/accounts**, track **finances**, and take **personal notes** — all encrypted and stored locally.
@@ -9,7 +10,7 @@ This project is a updated version of my initial [tk-inter implementation](https:
 
 - 🔐 **Master Password Login** – Secure all access behind a master password with strong encryption.
 - 📦 **Credential Manager** – CRUD credentials.
-- 🖱️ **Mouse & Keyboard Shortcuts** – Double-click, copy, delete, and more.
+- 🖱️ **Mouse & Keyboard Shortcuts** – Double-click, copy, delete, esc and more.
 - 📁 **100% Offline** – Files are stored locally on your machine.
 - 💰 **Finance Tracker (Coming Soon)**
 - ✍️ **Secure Notes (Planned)**
@@ -26,6 +27,7 @@ This project is a updated version of my initial [tk-inter implementation](https:
 
   - ⌘/Ctrl + **C** → Copies selected cell (clipboard auto-clears in 3 seconds)
   - **Delete** → Deletes selected entry after confirmation
+  - **ESC** → Closes focused window except main window.
 
 ## 📸 Screenshots
 
