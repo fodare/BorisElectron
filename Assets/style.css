@@ -31,6 +31,7 @@ body{
 
 .nav-link {
   color: #cfcfcf !important;
+  font-size: 1rem;
 }
 
 .nav-link:hover {
