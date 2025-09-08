@@ -22,6 +22,7 @@ let sessionKey = null;
 let mainWindow = null;
 let accountPromptWindow = null;
 let updateAccountWindow = null;
+let transactionPromptWindow = null;
 const APP_DIR = app.getAppPath();
 
 function createWindow() {
@@ -361,4 +362,32 @@ ipcMain.handle("show-confirmation-dialog", async (event, { type, message }) => {
       cancelId: 1,
    });
    return result.response === 0;
+});
+
+ipcMain.on("render-transaction-prompt", async () => {
+   if (transactionPromptWindow) {
+      transactionPromptWindow.focus();
+      return;
+   }
+
+   transactionPromptWindow = new BrowserWindow({
+      parent: mainWindow,
+      modal: true,
+      width: 900,
+      height: 750,
+      minimizable: false,
+      webPreferences: {
+         contextIsolation: true,
+         nodeIntegration: false,
+         preload: path.join(APP_DIR, "/Scripts/preload.js"),
+      },
+   });
+
+   transactionPromptWindow.loadFile(
+      path.join(APP_DIR, "/Pages/addTransaction.html")
+   );
+   //accountPromptWindow.webContents.openDevTools();
+   transactionPromptWindow.on("closed", () => {
+      transactionPromptWindow = null;
+   });
 });

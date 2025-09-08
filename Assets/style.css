@@ -80,6 +80,15 @@ body{
   color: var(--text-color);
 }
 
+.pageContent{
+  padding: 2rem;
+}
+
+.prefabTable{
+  background-color: var(--dark-backgroud) !important;
+  color: var(--text-color) !important;
+}
+
 /* Navbar styling */
 
 .nav-div {
@@ -184,6 +193,8 @@ body{
 .add-account-header{
   padding-bottom: 1rem;
 }
+
+/* Finance styling */
 
 /* Media styling */
 @media (min-width: 768px) {
