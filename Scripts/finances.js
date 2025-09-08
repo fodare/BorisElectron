@@ -42,4 +42,75 @@ async function setupFinancesInteractions() {
    });
 }
 
-export { setupFinancesInteractions };
+async function setupAddTransactionInteractions() {
+   const addTransactionBtn = document.getElementById("addTransactionBtn");
+   
+   async function validateTransactionForm() {
+      const transactionDate = document.getElementById("transactionDate")?.value;
+      const transactionType = document.getElementById("transactionType")?.value;
+      const transactionCategory = document.getElementById("transactionCategory")?.value;
+      const transactionAmount = parseFloat(document.getElementById("transactionAmount")?.value);
+      const transactionNote = document.getElementById("transactionNote")?.value;
+
+      const errors = [];
+      if (!transactionDate) {
+         errors.push('Transaction date is required!');
+      } else {
+         const selectedDate = new Date(transactionDate);
+         selectedDate.setHours(0, 0, 0, 0); // Normalize to midnight local time
+         const today = new Date();
+         today.setHours(0, 0, 0, 0); // Normalize today too
+         if (selectedDate > today) {
+            errors.push('Transaction date cannot be in the future.');
+         }
+      }
+
+      if (!transactionType) {
+         errors.push('Transaction type is required.');
+      } else if (!['credit', 'debit'].includes(transactionType)) {
+         errors.push('Transaction type must be credit or debit.');
+      }
+
+      if (!transactionCategory || transactionCategory.trim() === "") {
+         errors.push('Transaction category is required.');
+      }
+
+      if (isNaN(transactionAmount)) {
+         errors.push('Transaction amount must be a number.');
+      } else if (transactionAmount <= 0) {
+         errors.push('Transaction amount must be greater than zero.');
+      }
+
+      return {
+         isValid: errors.length === 0,
+         errors,
+         values: {
+            transactionDate,
+            transactionType,
+            transactionCategory,
+            transactionAmount,
+            transactionNote,
+         }
+      };
+   }
+
+   addTransactionBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const { isValid, errors, values } = await validateTransactionForm();
+
+      if (!isValid) {
+         setStatusMessage(errors.join(' '));
+         return;
+      }
+
+      const {
+         transactionDate,
+         transactionType,
+         transactionCategory,
+         transactionAmount,
+         transactionNote
+      } = values;
+   });
+}
+
+export { setupFinancesInteractions, setupAddTransactionInteractions };
