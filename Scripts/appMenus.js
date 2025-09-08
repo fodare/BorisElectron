@@ -90,14 +90,9 @@ function setUpAppMenu() {
             {
                label: "App Information",
                click: () => {
-                  const appInfo = `
-                  App Version: ${app.getVersion()}
-
-                  App Data Directory: ${app.getPath("userData")}
-
-                  Source Code: https://github.com/fodare/BorisElectron
-                  
-                  Issues: https://github.com/fodare/BorisElectron/issues
+                  const appInfo = `App Version: ${app.getVersion()}\n\nApp Data Directory: ${app.getPath(
+                     "userData"
+                  )}\n\nSource Code: https://github.com/fodare/BorisElectron\n\nIssues: https://github.com/fodare/BorisElectron/issues
                   `;
                   dialog.showMessageBox({
                      type: "info",
