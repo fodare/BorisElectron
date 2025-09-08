@@ -16,48 +16,47 @@
          <div class="form-box">
             <h1 class="page-heading add-account-header">Record Transaction</h1>
             <div class="row g-0">
-               <div class="accountHelpers col-12 col-md-12 text-start">
-                  <button
-                     class="btn btn-outline-secondary generateAccountBtn"
-                     id="generateAccountBtn"
-                  >
-                     Generate Random Info
-                  </button>
-               </div>
-               <div class="accountForm col-12 col-md-12">
+               <div class="transactionForm col-12 col-md-12">
+                  <input
+                     type="date"
+                     class="form-control"
+                     id="transactionDate"
+                     required
+                     placeholder="Select transaction date..."
+                  />
+                  <select name="Type" 
+                     id="transactionType" 
+                     class="form-control transactionType" 
+                     required>
+                     <option value="" disabled selected>Select transaction type</option>
+                     <option value="credit">Credit</option>
+                     <option value="debit">Debit</option>
+                  </select>
                   <input
                      type="text"
                      class="form-control"
-                     id="accountNameInput"
-                     placeholder="Enter account name..."
+                     id="transactionCategory"
+                     placeholder="Enter transaction category..."
+                     required
                   />
                   <input
-                     type="text"
+                     type="number"
                      class="form-control"
-                     id="usernameInput"
-                     placeholder="Enter account username..."
-                  />
-                  <input
-                     type="text"
-                     class="form-control hidetext"
-                     id="passwordInput"
-                     placeholder="Enter account password..."
-                  />
-                  <input
-                     type="text"
-                     class="form-control"
-                     id="urlInput"
-                     placeholder="Enter account URL..."
+                     id="transactionAmount"
+                     placeholder="Enter transaction amount..."
+                     min="0"
+                     step="0.01"
+                     required
                   />
                   <textarea
                      class="form-control"
-                     id="accountNote"
+                     id="transactionNote"
                      rows="3"
                      placeholder="Notes..."
                   ></textarea>
                   <button
                      class="btn btn-outline-secondary add-accountBtn"
-                     id="addAccountBtn"
+                     id="addTransactionBtn"
                   >
                      Record
                   </button>
