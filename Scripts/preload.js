@@ -51,4 +51,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.invoke("show-confirmation-dialog", { type, message }),
    renderAddTransactionWindow: () =>
       ipcRenderer.send("render-transaction-prompt"),
+   closeAddTransactionWindow: () => ipcRenderer.send("close-add-transaction-window")
 });

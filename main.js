@@ -391,3 +391,10 @@ ipcMain.on("render-transaction-prompt", async () => {
       transactionPromptWindow = null;
    });
 });
+
+ipcMain.on("close-add-transaction-window", async () =>{
+   if (transactionPromptWindow){
+      transactionPromptWindow.close();
+      transactionPromptWindow = null;
+   }
+})
