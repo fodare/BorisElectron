@@ -1,4 +1,5 @@
 import { setStatusMessage } from "./helper.js";
+
 async function setupFinancesInteractions() {
    const transactionsTypeInput = document.getElementById("transactionInput");
    const searchBtn = document.getElementById("searchBtn");
@@ -45,21 +46,57 @@ async function setupFinancesInteractions() {
 async function setupAddTransactionInteractions() {
    const addTransactionBtn = document.getElementById("addTransactionBtn");
    
-   async function validateTransactionForm() {
-      const transactionDate = document.getElementById("transactionDate")?.value;
-      const transactionType = document.getElementById("transactionType")?.value;
-      const transactionCategory = document.getElementById("transactionCategory")?.value;
-      const transactionAmount = parseFloat(document.getElementById("transactionAmount")?.value);
-      const transactionNote = document.getElementById("transactionNote")?.value;
+   addTransactionBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const { isValid, errors } = await validateTransactionForm();
+       const {
+         transactionDate,
+         transactionType,
+         transactionCategory,
+         transactionAmount,
+         transactionNote} = await getTransactionFormInput();
+
+      if (!isValid) {
+         setStatusMessage(errors.join(' '));
+         return;
+      }
+      console.log(transactionDate,transactionType,transactionCategory,transactionAmount,transactionNote);
+   });
+
+   document.addEventListener("keydown", async(event)=>{
+      if(event.key === "Escape"){
+         await window.electronAPI.closeAddTransactionWindow();
+      }
+   });
+}
+
+async function getTransactionFormInput(){
+   const transactionDate = document.getElementById("transactionDate")?.value;
+   const transactionType = document.getElementById("transactionType")?.value;
+   const transactionCategory = document.getElementById("transactionCategory")?.value;
+   const transactionAmount = parseFloat(document.getElementById("transactionAmount")?.value);
+   const transactionNote = document.getElementById("transactionNote")?.value;
+   return {
+      transactionDate,transactionType,transactionCategory,transactionAmount,transactionNote
+   }
+}
+
+async function validateTransactionForm() {
+      const {
+         transactionDate,
+         transactionType,
+         transactionCategory,
+         transactionAmount,
+         transactionNote} = await getTransactionFormInput();
 
       const errors = [];
       if (!transactionDate) {
          errors.push('Transaction date is required!');
       } else {
          const selectedDate = new Date(transactionDate);
-         selectedDate.setHours(0, 0, 0, 0); // Normalize to midnight local time
+         selectedDate.setHours(0, 0, 0, 0);
          const today = new Date();
-         today.setHours(0, 0, 0, 0); // Normalize today too
+         today.setHours(0, 0, 0, 0);
          if (selectedDate > today) {
             errors.push('Transaction date cannot be in the future.');
          }
@@ -83,34 +120,8 @@ async function setupAddTransactionInteractions() {
 
       return {
          isValid: errors.length === 0,
-         errors,
-         values: {
-            transactionDate,
-            transactionType,
-            transactionCategory,
-            transactionAmount,
-            transactionNote,
-         }
+         errors
       };
-   }
-
-   addTransactionBtn?.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const { isValid, errors, values } = await validateTransactionForm();
-
-      if (!isValid) {
-         setStatusMessage(errors.join(' '));
-         return;
-      }
-
-      const {
-         transactionDate,
-         transactionType,
-         transactionCategory,
-         transactionAmount,
-         transactionNote
-      } = values;
-   });
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
