@@ -397,4 +397,13 @@ ipcMain.on("close-add-transaction-window", async () =>{
       transactionPromptWindow.close();
       transactionPromptWindow = null;
    }
-})
+});
+
+ipcMain.handle("record-transaction", async(event,{transactionData})=>{
+   console.log(`Received transactionData: ${transactionData.transactionDate},
+      ${transactionData.transactionType},
+      ${transactionData.transactionCategory},
+      ${transactionData.transactionAmount},
+      ${transactionData.transactionNote}`);
+   return {success:true}
+});

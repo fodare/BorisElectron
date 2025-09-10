@@ -49,18 +49,13 @@ async function setupAddTransactionInteractions() {
    addTransactionBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
       const { isValid, errors } = await validateTransactionForm();
-       const {
-         transactionDate,
-         transactionType,
-         transactionCategory,
-         transactionAmount,
-         transactionNote} = await getTransactionFormInput();
-
       if (!isValid) {
          setStatusMessage(errors.join(' '));
          return;
       }
-      console.log(transactionDate,transactionType,transactionCategory,transactionAmount,transactionNote);
+      const transactionData = await getTransactionFormInput();
+      const recordTransactionResponse = await window.electronAPI.recordTransaction(transactionData)
+      setStatusMessage(recordTransactionResponse.success);
    });
 
    document.addEventListener("keydown", async(event)=>{
