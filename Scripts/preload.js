@@ -52,5 +52,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
    renderAddTransactionWindow: () =>
       ipcRenderer.send("render-transaction-prompt"),
    closeAddTransactionWindow: () => ipcRenderer.send("close-add-transaction-window"),
-   recordTransaction: (transactionData) => ipcRenderer.invoke("record-transaction",{transactionData})
+   recordTransaction: (transactionData) => ipcRenderer.invoke("record-transaction",{transactionData}),
+   readSavedTransactions: ()=> ipcRenderer.invoke("read-saved-transactions"),
 });

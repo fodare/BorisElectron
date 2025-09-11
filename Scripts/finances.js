@@ -41,6 +41,13 @@ async function setupFinancesInteractions() {
       event.preventDefault();
       await window.electronAPI.renderAddTransactionWindow();
    });
+
+   const transactions = await window.electronAPI.readSavedTransactions();
+   if(transactions.success){
+      await injectTransactionsIntoTable(transactions.data);
+   } else {
+      setStatusMessage(transactions.error)
+   }
 }
 
 async function setupAddTransactionInteractions() {
@@ -54,8 +61,15 @@ async function setupAddTransactionInteractions() {
          return;
       }
       const transactionData = await getTransactionFormInput();
-      const recordTransactionResponse = await window.electronAPI.recordTransaction(transactionData)
-      setStatusMessage(recordTransactionResponse.success);
+      const recordTransactionResponse = await window.electronAPI.recordTransaction(transactionData);
+      console.log(`Response: ${recordTransactionResponse.success}, ${recordTransactionResponse.message}`);
+      setStatusMessage(recordTransactionResponse.message);
+      if(recordTransactionResponse.success){
+         //await window.electronAPI.notifyAccountAdded();
+         setTimeout(async () => {
+            await window.electronAPI.closeAddTransactionWindow();
+         }, 3500);
+      }
    });
 
    document.addEventListener("keydown", async(event)=>{
@@ -117,6 +131,36 @@ async function validateTransactionForm() {
          isValid: errors.length === 0,
          errors
       };
+}
+
+async function injectTransactionsIntoTable(transactions) {
+   const transactionsTableBody = document.getElementById("transactionstableBody");
+   transactionsTableBody.innerHTML = "";
+   const transactionsArray = Array.isArray(transactions) ? transactions : [transactions];
+   transactionsArray.forEach((transaction) => {
+      const row = document.createElement("tr");
+
+      function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+                   .replace(/"/g, "&quot;")
+                   .replace(/'/g, "&#039;");
+      }
+
+      const noteEscaped = escapeHtml(transaction.transactionNote || "");
+      row.innerHTML = `
+         <td>${transaction.transactionDate}</td>
+         <td>${transaction.transactionType}</td>
+         <td>${transaction.transactionCategory}</td>
+         <td>${transaction.transactionAmount}</td>
+         <td class="tooltip-container">
+            ${noteEscaped.length > 30 ? noteEscaped.substring(0, 30) + '...' : noteEscaped}
+            <span class="tooltip-text">${noteEscaped}</span>
+         </td>
+      `;
+      transactionsTableBody.appendChild(row);
+   });
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };

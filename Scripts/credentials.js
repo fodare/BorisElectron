@@ -6,6 +6,7 @@ import { app } from "electron";
 let APP_DIR = app.getPath("userData");
 let MASTER_PASS_FILE = path.join(APP_DIR, "/Data/password.enc");
 let ACCOUNTS_FILE = path.join(APP_DIR, "/Data/accounts.enc");
+let TRANSACTIONS_FILE = path.join(APP_DIR, "/Data/transactions.enc")
 
 // ---------- Master-Password control ---------- //
 
@@ -309,6 +310,60 @@ function deleteAccountFromFile(accountName, masterPassword, saltHex) {
    }
 }
 
+function writeTransactionToFile(encryptedTransaction) {
+   try {
+      fs.mkdirSync(path.dirname(TRANSACTIONS_FILE), { recursive: true });
+      let currentData = [];
+
+      if (fs.existsSync(TRANSACTIONS_FILE)) {
+         const rawData = fs.readFileSync(TRANSACTIONS_FILE, "utf8");
+         currentData = JSON.parse(rawData);
+      }
+
+      currentData.push(encryptedTransaction);
+      fs.writeFileSync(
+         TRANSACTIONS_FILE,
+         JSON.stringify(currentData, null, 3),
+         "utf8"
+      );
+
+      return {
+         success: true,
+         message: "Wrote transaction to file!",
+      };
+   } catch (error) {
+      return {
+         success: false,
+         message: error,
+      };
+   }
+}
+
+function readTransactionsFromFile(){
+   try {
+      if (!fs.existsSync(TRANSACTIONS_FILE)) {
+         return { success: false, data: [] };
+      }
+
+      const fileContent = fs.readFileSync(TRANSACTIONS_FILE, "utf8");
+      const data = JSON.parse(fileContent);
+
+      if (!Array.isArray(data)) {
+         return {
+            success: false,
+            error: "Malformed transactions file. Expected an array of transactions.",
+         };
+      }
+
+      return { success: true, data };
+   } catch (error) {
+      return {
+         success: false,
+         error: error
+      };
+   }
+}
+
 export {
    masterPasswordExist,
    encryptValidationToken,
@@ -322,4 +377,6 @@ export {
    readAccountFromFile,
    updateAccountInFile,
    deleteAccountFromFile,
+   writeTransactionToFile,
+   readTransactionsFromFile
 };
