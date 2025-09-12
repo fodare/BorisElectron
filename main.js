@@ -14,7 +14,7 @@ import {
    updateAccountInFile,
    deleteAccountFromFile,
    writeTransactionToFile,
-   readTransactionsFromFile
+   readTransactionsFromFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
 
@@ -394,46 +394,50 @@ ipcMain.on("render-transaction-prompt", async () => {
    });
 });
 
-ipcMain.on("close-add-transaction-window", async () =>{
-   if (transactionPromptWindow){
+ipcMain.on("close-add-transaction-window", async () => {
+   if (transactionPromptWindow) {
       transactionPromptWindow.close();
       transactionPromptWindow = null;
    }
 });
 
-ipcMain.handle("record-transaction", async(event,{transactionData})=>{
-   if(!sessionMasterPassword || !sessionKey){
+ipcMain.handle("record-transaction", async (event, { transactionData }) => {
+   if (!sessionMasterPassword || !sessionKey) {
       return {
          sucess: false,
-         message: "Can not persist transaction. Master password not in session!"
+         message:
+            "Can not persist transaction. Master password not in session!",
       };
    }
 
    const transactionInfo = JSON.stringify(transactionData);
-   let encryptionKey = deriveKeyFromMasterpassword(sessionMasterPassword,sessionKey);
+   let encryptionKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey
+   );
    let encryptedData = encryptContent(transactionInfo, encryptionKey.data);
 
-   if(!encryptedData.success){
-      return{
+   if (!encryptedData.success) {
+      return {
          success: false,
-         message: "Error encrypting transaction. Please try again."
-      }
+         message: "Error encrypting transaction. Please try again.",
+      };
    }
 
    const parsedContent = JSON.parse(encryptedData.encryptedContent);
    const isTransactionRecorded = writeTransactionToFile(parsedContent);
-   if(isTransactionRecorded.success){
-      return {success: true, message: isTransactionRecorded.message}
+   if (isTransactionRecorded.success) {
+      return { success: true, message: isTransactionRecorded.message };
    } else {
-      return {success: false, message: isTransactionRecorded.message}
+      return { success: false, message: isTransactionRecorded.message };
    }
 });
 
-ipcMain.handle("read-saved-transactions", (event)=>{
-   if(!sessionMasterPassword || !sessionKey){
+ipcMain.handle("read-saved-transactions", (event) => {
+   if (!sessionMasterPassword || !sessionKey) {
       return {
          success: false,
-         message: "Error reading transactions. Master password not in session!"
+         message: "Error reading transactions. Master password not in session!",
       };
    }
 
@@ -443,38 +447,40 @@ ipcMain.handle("read-saved-transactions", (event)=>{
       sessionKey
    );
 
-   if(!savedTransactions.success || !derivedKey.success){
-      return{
+   if (!savedTransactions.success || !derivedKey.success) {
+      return {
          success: false,
-         message: "Failed to read or decrypt transactions."
-      }
+         message: "Failed to read or decrypt transactions.",
+      };
    }
 
-   const decryptedTransactions = savedTransactions.data.map(
-      (transaction) => {
+   const decryptedTransactions = savedTransactions.data
+      .map((transaction) => {
          const result = decryptContent(
-            transaction.iv, transaction.data, derivedKey.data
+            transaction.iv,
+            transaction.data,
+            derivedKey.data
          );
-         if(result.success){
+         if (result.success) {
             return JSON.parse(result.data);
          }
-         return null; 
-      }
-   ).filter(Boolean);
-   
+         return null;
+      })
+      .filter(Boolean);
+
    return {
       success: true,
-      data: decryptedTransactions
-   }
+      data: decryptedTransactions,
+   };
 });
 
-ipcMain.on("transaction-added", ()=>{
+ipcMain.on("transaction-added", () => {
    const allWindows = BrowserWindow.getAllWindows();
    const transactionWindow = allWindows.find((window) =>
       window.webContents.getURL().includes("finances.html")
    );
 
-   if(transactionWindow){
+   if (transactionWindow) {
       transactionWindow.webContents.send("refresh-transactions");
    }
 });
