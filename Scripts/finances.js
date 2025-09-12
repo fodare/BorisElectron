@@ -208,7 +208,7 @@ async function sortTransactionByDataDesc(transactions) {
 }
 
 async function calculateTotals(transactions) {
-   let totals = {
+   const totals = {
       credit: 0,
       debit: 0,
    };
@@ -220,7 +220,30 @@ async function calculateTotals(transactions) {
          totals.debit += tx.transactionAmount;
       }
    });
-   return totals;
+
+   const balance = totals.credit - totals.debit;
+   const round = (amount) => amount.toFixed(2);
+
+   const totalsContainer = document.getElementById("tranctionsTotals");
+   if (!totalsContainer) return;
+
+   totalsContainer.innerHTML = `
+      <div class="col-12 col-md-4 mb-2">
+         <div class="alert alert-success text-center">
+            <strong>Total Credit</strong><br>${round(totals.credit)}
+         </div>
+      </div>
+      <div class="col-12 col-md-4 mb-2">
+         <div class="alert alert-danger text-center">
+            <strong>Total Debit</strong><br>${round(totals.debit)}
+         </div>
+      </div>
+      <div class="col-12 col-md-4 mb-2">
+         <div class="alert alert-primary text-center">
+            <strong>Total Balance</strong><br>${round(balance)}
+         </div>
+      </div>
+   `;
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
