@@ -467,3 +467,14 @@ ipcMain.handle("read-saved-transactions", (event)=>{
       data: decryptedTransactions
    }
 });
+
+ipcMain.on("transaction-added", ()=>{
+   const allWindows = BrowserWindow.getAllWindows();
+   const transactionWindow = allWindows.find((window) =>
+      window.webContents.getURL().includes("finances.html")
+   );
+
+   if(transactionWindow){
+      transactionWindow.webContents.send("refresh-transactions");
+   }
+});
