@@ -46,27 +46,32 @@ async function setupFinancesInteractions() {
    });
 
    const transactions = await window.electronAPI.readSavedTransactions();
-   if(transactions.success){
-      await injectTransactionsIntoTable(transactions.data);
+   if (transactions.success) {
+      const sortedTransaction = await sortTransactionByDataDesc(
+         transactions.data
+      );
+      await injectTransactionsIntoTable(sortedTransaction);
+      await calculateTotals(sortedTransaction);
    } else {
-      setStatusMessage(transactions.error)
+      setStatusMessage(transactions.error);
    }
 }
 
 async function setupAddTransactionInteractions() {
    const addTransactionBtn = document.getElementById("addTransactionBtn");
-   
+
    addTransactionBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
       const { isValid, errors } = await validateTransactionForm();
       if (!isValid) {
-         setStatusMessage(errors.join(' '));
+         setStatusMessage(errors.join(" "));
          return;
       }
       const transactionData = await getTransactionFormInput();
-      const recordTransactionResponse = await window.electronAPI.recordTransaction(transactionData);
+      const recordTransactionResponse =
+         await window.electronAPI.recordTransaction(transactionData);
       setStatusMessage(recordTransactionResponse.message);
-      if(recordTransactionResponse.success){
+      if (recordTransactionResponse.success) {
          window.electronAPI.notifyTransactionAdded();
          setTimeout(async () => {
             await window.electronAPI.closeAddTransactionWindow();
@@ -74,80 +79,94 @@ async function setupAddTransactionInteractions() {
       }
    });
 
-   document.addEventListener("keydown", async(event)=>{
-      if(event.key === "Escape"){
+   document.addEventListener("keydown", async (event) => {
+      if (event.key === "Escape") {
          await window.electronAPI.closeAddTransactionWindow();
       }
    });
 }
 
-async function getTransactionFormInput(){
+async function getTransactionFormInput() {
    const transactionDate = document.getElementById("transactionDate")?.value;
    const transactionType = document.getElementById("transactionType")?.value;
-   const transactionCategory = document.getElementById("transactionCategory")?.value;
-   const transactionAmount = parseFloat(document.getElementById("transactionAmount")?.value);
+   const transactionCategory = document.getElementById(
+      "transactionCategory"
+   )?.value;
+   const transactionAmount = parseFloat(
+      document.getElementById("transactionAmount")?.value
+   );
    const transactionNote = document.getElementById("transactionNote")?.value;
    return {
-      transactionDate,transactionType,transactionCategory,transactionAmount,transactionNote
-   }
+      transactionDate,
+      transactionType,
+      transactionCategory,
+      transactionAmount,
+      transactionNote,
+   };
 }
 
 async function validateTransactionForm() {
-      const {
-         transactionDate,
-         transactionType,
-         transactionCategory,
-         transactionAmount,
-         transactionNote} = await getTransactionFormInput();
+   const {
+      transactionDate,
+      transactionType,
+      transactionCategory,
+      transactionAmount,
+      transactionNote,
+   } = await getTransactionFormInput();
 
-      const errors = [];
-      if (!transactionDate) {
-         errors.push('Transaction date is required!');
-      } else {
-         const selectedDate = new Date(transactionDate);
-         selectedDate.setHours(0, 0, 0, 0);
-         const today = new Date();
-         today.setHours(0, 0, 0, 0);
-         if (selectedDate > today) {
-            errors.push('Transaction date cannot be in the future.');
-         }
+   const errors = [];
+   if (!transactionDate) {
+      errors.push("Transaction date is required!");
+   } else {
+      const selectedDate = new Date(transactionDate);
+      selectedDate.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate > today) {
+         errors.push("Transaction date cannot be in the future.");
       }
+   }
 
-      if (!transactionType) {
-         errors.push('Transaction type is required.');
-      } else if (!['credit', 'debit'].includes(transactionType)) {
-         errors.push('Transaction type must be credit or debit.');
-      }
+   if (!transactionType) {
+      errors.push("Transaction type is required.");
+   } else if (!["credit", "debit"].includes(transactionType)) {
+      errors.push("Transaction type must be credit or debit.");
+   }
 
-      if (!transactionCategory || transactionCategory.trim() === "") {
-         errors.push('Transaction category is required.');
-      }
+   if (!transactionCategory || transactionCategory.trim() === "") {
+      errors.push("Transaction category is required.");
+   }
 
-      if (isNaN(transactionAmount)) {
-         errors.push('Transaction amount must be a number.');
-      } else if (transactionAmount <= 0) {
-         errors.push('Transaction amount must be greater than zero.');
-      }
+   if (isNaN(transactionAmount)) {
+      errors.push("Transaction amount must be a number.");
+   } else if (transactionAmount <= 0) {
+      errors.push("Transaction amount must be greater than zero.");
+   }
 
-      return {
-         isValid: errors.length === 0,
-         errors
-      };
+   return {
+      isValid: errors.length === 0,
+      errors,
+   };
 }
 
 async function injectTransactionsIntoTable(transactions) {
-   const transactionsTableBody = document.getElementById("transactionstableBody");
+   const transactionsTableBody = document.getElementById(
+      "transactionstableBody"
+   );
    transactionsTableBody.innerHTML = "";
-   const transactionsArray = Array.isArray(transactions) ? transactions : [transactions];
+   const transactionsArray = Array.isArray(transactions)
+      ? transactions
+      : [transactions];
    transactionsArray.forEach((transaction) => {
       const row = document.createElement("tr");
 
       function escapeHtml(text) {
-        return text.replace(/&/g, "&amp;")
-                   .replace(/</g, "&lt;")
-                   .replace(/>/g, "&gt;")
-                   .replace(/"/g, "&quot;")
-                   .replace(/'/g, "&#039;");
+         return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
       }
 
       const noteEscaped = escapeHtml(transaction.transactionNote || "");
@@ -157,7 +176,11 @@ async function injectTransactionsIntoTable(transactions) {
          <td>${transaction.transactionCategory}</td>
          <td>${transaction.transactionAmount}</td>
          <td class="tooltip-container">
-            ${noteEscaped.length > 30 ? noteEscaped.substring(0, 30) + '...' : noteEscaped}
+            ${
+               noteEscaped.length > 30
+                  ? noteEscaped.substring(0, 30) + "..."
+                  : noteEscaped
+            }
             <span class="tooltip-text">${noteEscaped}</span>
          </td>
       `;
@@ -168,10 +191,37 @@ async function injectTransactionsIntoTable(transactions) {
 async function refreshTransactionsTable() {
    const transactions = await window.electronAPI.readSavedTransactions();
    if (transactions.success) {
-      await injectTransactionsIntoTable(transactions.data);
+      const sortedTransaction = await sortTransactionByDataDesc(
+         transactions.data
+      );
+      await injectTransactionsIntoTable(sortedTransaction);
+      await calculateTotals(sortedTransaction);
    } else {
       setStatusMessage(transactions.error);
    }
+}
+
+async function sortTransactionByDataDesc(transactions) {
+   return transactions.sort(
+      (a, b) => new Date(b.transactionDate) - new Date(a.transactionDate)
+   );
+}
+
+async function calculateTotals(transactions) {
+   let totals = {
+      credit: 0,
+      debit: 0,
+   };
+
+   transactions.forEach((tx) => {
+      if (tx.transactionType === "credit") {
+         totals.credit += tx.transactionAmount;
+      } else if (tx.transactionType === "debit") {
+         totals.debit += tx.transactionAmount;
+      }
+   });
+   console.log(totals);
+   return totals;
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
