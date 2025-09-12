@@ -220,7 +220,6 @@ async function calculateTotals(transactions) {
          totals.debit += tx.transactionAmount;
       }
    });
-   console.log(totals);
    return totals;
 }
 
