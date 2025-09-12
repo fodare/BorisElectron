@@ -1,6 +1,9 @@
 import { setStatusMessage } from "./helper.js";
 
 async function setupFinancesInteractions() {
+   window.electronAPI.onRefreshTransaction(async (event, ...args) => {
+      await refreshTransactionsTable();
+   });
    const transactionsTypeInput = document.getElementById("transactionInput");
    const searchBtn = document.getElementById("searchBtn");
    const addTransactionsBtn = document.getElementById("addTransctionBtn");
@@ -62,10 +65,9 @@ async function setupAddTransactionInteractions() {
       }
       const transactionData = await getTransactionFormInput();
       const recordTransactionResponse = await window.electronAPI.recordTransaction(transactionData);
-      console.log(`Response: ${recordTransactionResponse.success}, ${recordTransactionResponse.message}`);
       setStatusMessage(recordTransactionResponse.message);
       if(recordTransactionResponse.success){
-         //await window.electronAPI.notifyAccountAdded();
+         window.electronAPI.notifyTransactionAdded();
          setTimeout(async () => {
             await window.electronAPI.closeAddTransactionWindow();
          }, 3500);
@@ -161,6 +163,15 @@ async function injectTransactionsIntoTable(transactions) {
       `;
       transactionsTableBody.appendChild(row);
    });
+}
+
+async function refreshTransactionsTable() {
+   const transactions = await window.electronAPI.readSavedTransactions();
+   if (transactions.success) {
+      await injectTransactionsIntoTable(transactions.data);
+   } else {
+      setStatusMessage(transactions.error);
+   }
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
