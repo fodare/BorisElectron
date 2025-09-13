@@ -118,8 +118,8 @@ function addTableInteractions(tableBodyId) {
          if (copiedText) {
             navigator.clipboard
                .writeText(copiedText)
-               .then(() => console.log("Copied text:", copiedText))
-               .catch((err) => console.error("Clipboard error:", err));
+               .then(() => setStatusMessage("Copied!"))
+               .catch((err) => setStatusMessage("Clipboard error:", err));
             event.preventDefault();
          }
       }
