@@ -181,6 +181,7 @@ async function injectTransactionsIntoTable(transactions) {
 
       const noteEscaped = escapeHtml(transaction.transactionNote || "");
       row.innerHTML = `
+         <td class="hidden-note">${transaction.transactionId}</td>
          <td>${transaction.transactionDate}</td>
          <td>${transaction.transactionType}</td>
          <td>${transaction.transactionCategory}</td>
