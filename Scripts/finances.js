@@ -96,8 +96,9 @@ async function getTransactionFormInput() {
       document.getElementById("transactionAmount")?.value
    );
    const transactionNote = document.getElementById("transactionNote")?.value;
+   const transactionId = await generateID();
    return {
-      transactionDate,
+      transactionId,
       transactionType,
       transactionCategory,
       transactionAmount,
@@ -244,6 +245,10 @@ async function calculateTotals(transactions) {
          </div>
       </div>
    `;
+}
+
+async function generateID() {
+   return Date.now().toString(36) + Math.random().toString(36).substr(2, 8);
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
