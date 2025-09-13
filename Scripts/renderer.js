@@ -10,7 +10,10 @@ import {
    setUpAddAccountPageIntractions,
    setUpUpdateAccountInteractions,
 } from "./accounts.js";
-import { setupFinancesInteractions,setupAddTransactionInteractions } from "./finances.js";
+import {
+   setupFinancesInteractions,
+   setupAddTransactionInteractions,
+} from "./finances.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
@@ -83,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    if (path.endsWith("finances.html")) {
       await setupFinancesInteractions();
    }
-   
+
    if (path.endsWith("addTransaction.html")) {
       await setupAddTransactionInteractions();
    }
