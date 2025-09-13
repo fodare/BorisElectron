@@ -99,6 +99,7 @@ async function getTransactionFormInput() {
    const transactionId = await generateID();
    return {
       transactionId,
+      transactionDate,
       transactionType,
       transactionCategory,
       transactionAmount,
