@@ -80,7 +80,6 @@ function addTableInteractions(tableBodyId) {
 
    let selectedRow = null;
    let selectedCell = null;
-   let clipboardClearTimeout = null;
 
    tableBody.addEventListener("click", (event) => {
       const target = event.target;
