@@ -59,4 +59,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
    notifyTransactionAdded: () => ipcRenderer.send("transaction-added"),
    onRefreshTransaction: (callback) =>
       ipcRenderer.on("refresh-transactions", callback),
+   deletetransaction: (tranactionID) =>
+      ipcRenderer.invoke("delete-transaction", tranactionID),
 });

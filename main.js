@@ -15,6 +15,7 @@ import {
    deleteAccountFromFile,
    writeTransactionToFile,
    readTransactionsFromFile,
+   deleteTransactionFromFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
 
@@ -483,4 +484,30 @@ ipcMain.on("transaction-added", () => {
    if (transactionWindow) {
       transactionWindow.webContents.send("refresh-transactions");
    }
+});
+
+ipcMain.handle("delete-transaction", (event, tranactionID) => {
+   if (!sessionKey || !sessionMasterPassword) {
+      return {
+         success: false,
+         message: "Master password not in session",
+      };
+   }
+
+   const result = deleteTransactionFromFile(
+      tranactionID,
+      sessionMasterPassword,
+      sessionKey
+   );
+
+   if (!result.success) {
+      const transactionWindow = BrowserWindow.getAllWindows().find((win) => {
+         win.webContents.getURL().includes("finances.html");
+      });
+      if (transactionWindow) {
+         transactionWindow.webContents.send("refresh-transactions");
+      }
+   }
+
+   return result;
 });
