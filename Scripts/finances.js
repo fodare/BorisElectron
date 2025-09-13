@@ -109,6 +109,7 @@ async function getTransactionFormInput() {
 
 async function validateTransactionForm() {
    const {
+      transactionId,
       transactionDate,
       transactionType,
       transactionCategory,
@@ -117,6 +118,13 @@ async function validateTransactionForm() {
    } = await getTransactionFormInput();
 
    const errors = [];
+
+   if (!transactionId || transactionId == "") {
+      errors.push(
+         "Problem with id genetation. Tansaction ID can not be null / empty!"
+      );
+   }
+
    if (!transactionDate) {
       errors.push("Transaction date is required!");
    } else {
