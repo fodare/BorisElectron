@@ -6,7 +6,7 @@ import { app } from "electron";
 let APP_DIR = app.getPath("userData");
 let MASTER_PASS_FILE = path.join(APP_DIR, "/Data/password.enc");
 let ACCOUNTS_FILE = path.join(APP_DIR, "/Data/accounts.enc");
-let TRANSACTIONS_FILE = path.join(APP_DIR, "/Data/transactions.enc")
+let TRANSACTIONS_FILE = path.join(APP_DIR, "/Data/transactions.enc");
 
 // ---------- Master-Password control ---------- //
 
@@ -339,7 +339,7 @@ function writeTransactionToFile(encryptedTransaction) {
    }
 }
 
-function readTransactionsFromFile(){
+function readTransactionsFromFile() {
    try {
       if (!fs.existsSync(TRANSACTIONS_FILE)) {
          return { success: false, data: [] };
@@ -359,8 +359,60 @@ function readTransactionsFromFile(){
    } catch (error) {
       return {
          success: false,
-         error: error
+         error: error,
       };
+   }
+}
+
+function deleteTransactionFromFile(tranactionID, masterPassword, saltHex) {
+   const readResult = readTransactionsFromFile();
+   if (!readResult.success) {
+      return {
+         success: false,
+         message: "Failed to read transaction from file.",
+      };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+   if (!keyResult.success) {
+      return { success: false, message: "Failed to derive key." };
+   }
+
+   const decryptedTransactions = readResult.data
+      .map((entry) => {
+         const decrypted = decryptContent(entry.iv, entry.data, keyResult.data);
+         if (!decrypted.success) return null;
+         try {
+            return JSON.parse(decrypted.data);
+         } catch {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const filtered = decryptedTransactions.filter(
+      (transaction) => transaction.transactionId !== tranactionID
+   );
+
+   if (filtered.length === decryptedTransactions.length) {
+      return { success: false, message: "Transaction not found!" };
+   }
+
+   const encryptedTransactions = filtered.map((transaction) => {
+      const enc = encryptContent(JSON.stringify(transaction), keyResult.data);
+      if (!enc.success) throw new Error("Re-encryption failed.");
+      return JSON.parse(enc.encryptedContent);
+   });
+
+   try {
+      fs.writeFileSync(
+         TRANSACTIONS_FILE,
+         JSON.stringify(encryptedTransactions, null, 3),
+         "utf8"
+      );
+      return { success: true, message: "Transactions deleted successfully." };
+   } catch (err) {
+      return { success: false, message: "Failed to write file." };
    }
 }
 
@@ -378,5 +430,6 @@ export {
    updateAccountInFile,
    deleteAccountFromFile,
    writeTransactionToFile,
-   readTransactionsFromFile
+   readTransactionsFromFile,
+   deleteTransactionFromFile,
 };

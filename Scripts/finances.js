@@ -45,6 +45,8 @@ async function setupFinancesInteractions() {
       await window.electronAPI.renderAddTransactionWindow();
    });
 
+   await addTableInteractions("transactionstableBody");
+
    const transactions = await window.electronAPI.readSavedTransactions();
    if (transactions.success) {
       const sortedTransaction = await sortTransactionByDataDesc(
@@ -259,6 +261,50 @@ async function calculateTotals(transactions) {
 
 async function generateID() {
    return Date.now().toString(36) + Math.random().toString(36).substr(2, 8);
+}
+
+async function addTableInteractions(tableBodyId) {
+   const tableBody = document.getElementById(tableBodyId);
+   if (!tableBody) {
+      return;
+   }
+
+   let selectedRow = null;
+   let selectedCell = null;
+
+   tableBody.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target.tagName === "TD") {
+         selectedCell = target;
+         selectedRow = target.parentElement;
+      }
+   });
+
+   document.addEventListener("keydown", async (event) => {
+      if (!selectedCell) {
+         return;
+      }
+
+      if (event.key === "Delete") {
+         event.preventDefault();
+         if (selectedRow) {
+            const confirmDeletion = confirm(
+               "Are you sure you want to delete this entry?. Please note action is not reversible!"
+            );
+            if (confirmDeletion) {
+               const cells = selectedRow.querySelectorAll("td");
+               const tranactionID = cells[0]?.textContent;
+               const delettionResult =
+                  await window.electronAPI.deletetransaction(tranactionID);
+
+               setStatusMessage(delettionResult.message);
+               if (delettionResult.success) {
+                  await refreshTransactionsTable();
+               }
+            }
+         }
+      }
+   });
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
