@@ -13,6 +13,9 @@ import {
    readAccountFromFile,
    updateAccountInFile,
    deleteAccountFromFile,
+   writeTransactionToFile,
+   readTransactionsFromFile,
+   deleteTransactionFromFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
 
@@ -22,6 +25,7 @@ let sessionKey = null;
 let mainWindow = null;
 let accountPromptWindow = null;
 let updateAccountWindow = null;
+let transactionPromptWindow = null;
 const APP_DIR = app.getAppPath();
 
 function createWindow() {
@@ -361,4 +365,149 @@ ipcMain.handle("show-confirmation-dialog", async (event, { type, message }) => {
       cancelId: 1,
    });
    return result.response === 0;
+});
+
+ipcMain.on("render-transaction-prompt", async () => {
+   if (transactionPromptWindow) {
+      transactionPromptWindow.focus();
+      return;
+   }
+
+   transactionPromptWindow = new BrowserWindow({
+      parent: mainWindow,
+      modal: true,
+      width: 900,
+      height: 750,
+      minimizable: false,
+      webPreferences: {
+         contextIsolation: true,
+         nodeIntegration: false,
+         preload: path.join(APP_DIR, "/Scripts/preload.js"),
+      },
+   });
+
+   transactionPromptWindow.loadFile(
+      path.join(APP_DIR, "/Pages/addTransaction.html")
+   );
+   //accountPromptWindow.webContents.openDevTools();
+   transactionPromptWindow.on("closed", () => {
+      transactionPromptWindow = null;
+   });
+});
+
+ipcMain.on("close-add-transaction-window", async () => {
+   if (transactionPromptWindow) {
+      transactionPromptWindow.close();
+      transactionPromptWindow = null;
+   }
+});
+
+ipcMain.handle("record-transaction", async (event, { transactionData }) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         sucess: false,
+         message:
+            "Can not persist transaction. Master password not in session!",
+      };
+   }
+
+   const transactionInfo = JSON.stringify(transactionData);
+   let encryptionKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey
+   );
+   let encryptedData = encryptContent(transactionInfo, encryptionKey.data);
+
+   if (!encryptedData.success) {
+      return {
+         success: false,
+         message: "Error encrypting transaction. Please try again.",
+      };
+   }
+
+   const parsedContent = JSON.parse(encryptedData.encryptedContent);
+   const isTransactionRecorded = writeTransactionToFile(parsedContent);
+   if (isTransactionRecorded.success) {
+      return { success: true, message: isTransactionRecorded.message };
+   } else {
+      return { success: false, message: isTransactionRecorded.message };
+   }
+});
+
+ipcMain.handle("read-saved-transactions", (event) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error reading transactions. Master password not in session!",
+      };
+   }
+
+   const savedTransactions = readTransactionsFromFile();
+   const derivedKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey
+   );
+
+   if (!savedTransactions.success || !derivedKey.success) {
+      return {
+         success: false,
+         message: "Failed to read or decrypt transactions.",
+      };
+   }
+
+   const decryptedTransactions = savedTransactions.data
+      .map((transaction) => {
+         const result = decryptContent(
+            transaction.iv,
+            transaction.data,
+            derivedKey.data
+         );
+         if (result.success) {
+            return JSON.parse(result.data);
+         }
+         return null;
+      })
+      .filter(Boolean);
+
+   return {
+      success: true,
+      data: decryptedTransactions,
+   };
+});
+
+ipcMain.on("transaction-added", () => {
+   const allWindows = BrowserWindow.getAllWindows();
+   const transactionWindow = allWindows.find((window) =>
+      window.webContents.getURL().includes("finances.html")
+   );
+
+   if (transactionWindow) {
+      transactionWindow.webContents.send("refresh-transactions");
+   }
+});
+
+ipcMain.handle("delete-transaction", (event, tranactionID) => {
+   if (!sessionKey || !sessionMasterPassword) {
+      return {
+         success: false,
+         message: "Master password not in session",
+      };
+   }
+
+   const result = deleteTransactionFromFile(
+      tranactionID,
+      sessionMasterPassword,
+      sessionKey
+   );
+
+   if (!result.success) {
+      const transactionWindow = BrowserWindow.getAllWindows().find((win) => {
+         win.webContents.getURL().includes("finances.html");
+      });
+      if (transactionWindow) {
+         transactionWindow.webContents.send("refresh-transactions");
+      }
+   }
+
+   return result;
 });

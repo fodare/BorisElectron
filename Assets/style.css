@@ -1,12 +1,14 @@
 body{
     margin: 0;
-    padding: 0;
-    display: block;
-    background-color: var(--dark-backgroud);
-    color: var(--text-color);
-    width: 100vw;
-    box-sizing: border-box;
-    overflow-x: hidden;
+   padding: 0;
+   display: flex;
+   flex-direction: column;
+   background-color: var(--dark-backgroud);
+   color: var(--text-color);
+   width: 100vw;
+   height: 100vh;
+   overflow: hidden;
+   box-sizing: border-box;
 }
 
 /* Colors */
@@ -44,7 +46,10 @@ body{
 }
 
 .content-div{
-    padding: 1rem;
+   display: flex;
+   flex-direction: column;
+   height: 100vh;
+   overflow: hidden;
 }
 
 .narrow-input {
@@ -78,6 +83,58 @@ body{
 .toast-header{
   background-color: #1c1e24 !important;
   color: var(--text-color);
+}
+
+.pageContent{
+  padding: 2rem;
+}
+
+.prefabTable{
+  background-color: var(--dark-backgroud) !important;
+  color: var(--text-color) !important;
+}
+
+/* Tool tip styling */
+.tooltip-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  width: 220px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 4px;
+  padding: 6px 8px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none; 
+  font-size: 0.85rem;
+  white-space: normal; 
+}
+
+.tooltip-container .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Navbar styling */
@@ -183,6 +240,16 @@ body{
 
 .add-account-header{
   padding-bottom: 1rem;
+}
+
+/* Finance styling */
+.transactionType{
+  margin-bottom: 1rem;
+}
+
+.transactionsTree{
+  flex-grow: 1;
+   overflow-y: auto;
 }
 
 /* Media styling */

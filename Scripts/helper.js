@@ -80,7 +80,6 @@ function addTableInteractions(tableBodyId) {
 
    let selectedRow = null;
    let selectedCell = null;
-   let clipboardClearTimeout = null;
 
    tableBody.addEventListener("click", (event) => {
       const target = event.target;
@@ -114,22 +113,15 @@ function addTableInteractions(tableBodyId) {
 
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
          event.preventDefault();
-         const copiedText = selectedCell.textContent;
-         navigator.clipboard
-            .writeText(copiedText)
-            .then(() => {
-               setTimeout(() => {
-                  if (clipboardClearTimeout) {
-                     clearTimeout(clipboardClearTimeout);
-                  }
-                  clipboardClearTimeout = setTimeout(() => {
-                     navigator.clipboard
-                        .writeText("")
-                        .catch((error) => setStatusMessage(error.message));
-                  }, 3000);
-               });
-            })
-            .catch((error) => setStatusMessage(error.message));
+
+         const copiedText = selectedCell?.textContent;
+         if (copiedText) {
+            navigator.clipboard
+               .writeText(copiedText)
+               .then(() => setStatusMessage("Copied!"))
+               .catch((err) => setStatusMessage("Clipboard error:", err));
+            event.preventDefault();
+         }
       }
 
       if (event.key === "Delete") {

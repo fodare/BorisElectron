@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta
+         http-equiv="Content-Security-Policy"
+         content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; connect-src 'self';"
+      />
+      <link rel="stylesheet" href="../Assets/bootstrap/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="../Assets/style.css" />
+      <title>Boris - Record Transaction</title>
+   </head>
+   <body>
+      <div class="container-fluid centered-form-container">
+         <div class="form-box">
+            <h1 class="page-heading add-account-header">Record Transaction</h1>
+            <div class="row g-0">
+               <div class="transactionForm col-12 col-md-12">
+                  <input
+                     type="date"
+                     class="form-control"
+                     id="transactionDate"
+                     required
+                     placeholder="Select transaction date..."
+                  />
+                  <select
+                     name="Type"
+                     id="transactionType"
+                     class="form-control transactionType"
+                     required
+                  >
+                     <option value="" disabled selected>
+                        Select transaction type
+                     </option>
+                     <option value="credit">Credit</option>
+                     <option value="debit">Debit</option>
+                  </select>
+                  <input
+                     type="text"
+                     class="form-control"
+                     id="transactionCategory"
+                     placeholder="Enter transaction category..."
+                     required
+                  />
+                  <input
+                     type="number"
+                     class="form-control"
+                     id="transactionAmount"
+                     placeholder="Enter transaction amount..."
+                     min="0"
+                     step="0.01"
+                     required
+                  />
+                  <textarea
+                     class="form-control"
+                     id="transactionNote"
+                     rows="2"
+                     placeholder="Notes..."
+                  ></textarea>
+                  <button
+                     class="btn btn-outline-secondary add-accountBtn"
+                     id="addTransactionBtn"
+                  >
+                     Record
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script src="../Assets/bootstrap/js/bootstrap.min.js"></script>
+      <script type="module" src="../Scripts/renderer.js"></script>
+   </body>
+</html>

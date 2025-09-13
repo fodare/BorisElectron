@@ -20,7 +20,60 @@
             ></div>
             <div id="content-div" class="content-div col-12 col-md-10">
                <h1 class="page-heading">Finances</h1>
-               <div class="financesContent"></div>
+               <div class="financesContent pageContent">
+                  <div class="financesTools">
+                     <form class="d-flex" role="search">
+                        <input
+                           class="form-control me-3 narrow-input"
+                           type="search"
+                           placeholder="Transaction type debit / credit..."
+                           aria-label="Search"
+                           id="transactionInput"
+                        />
+                        <button
+                           class="btn btn btn-outline-secondary"
+                           id="searchBtn"
+                        >
+                           Search
+                        </button>
+                        <button
+                           class="btn btn btn-outline-secondary"
+                           id="addTransctionBtn"
+                        >
+                           Record Transaction
+                        </button>
+                     </form>
+                  </div>
+                  <div
+                     class="tranctionsTotals row narrow-top-padding"
+                     id="tranctionsTotals"
+                  ></div>
+                  <div
+                     class="transactionsTree small-top-padding"
+                     id="transactionsTree"
+                  >
+                     <div class="table-scroll-wrapper">
+                        <div class="table-responsive">
+                           <table
+                              class="table table-sm transactionstable prefabTable"
+                              id="transactionstable"
+                           >
+                              <thead class="table-head">
+                                 <tr>
+                                    <th class="hidden-note">Id</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Comments</th>
+                                 </tr>
+                              </thead>
+                              <tbody id="transactionstableBody"></tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
          </div>
       </div>

@@ -49,4 +49,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
    appInfo: () => ipcRenderer.invoke("read-app-info"),
    showConfirmationDialog: (type, message) =>
       ipcRenderer.invoke("show-confirmation-dialog", { type, message }),
+   renderAddTransactionWindow: () =>
+      ipcRenderer.send("render-transaction-prompt"),
+   closeAddTransactionWindow: () =>
+      ipcRenderer.send("close-add-transaction-window"),
+   recordTransaction: (transactionData) =>
+      ipcRenderer.invoke("record-transaction", { transactionData }),
+   readSavedTransactions: () => ipcRenderer.invoke("read-saved-transactions"),
+   notifyTransactionAdded: () => ipcRenderer.send("transaction-added"),
+   onRefreshTransaction: (callback) =>
+      ipcRenderer.on("refresh-transactions", callback),
+   deletetransaction: (tranactionID) =>
+      ipcRenderer.invoke("delete-transaction", tranactionID),
 });
