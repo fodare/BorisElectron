@@ -81,7 +81,7 @@ This is a personal-use app. For production-scale use, consider a full security a
 - [x] Local AES encryption.
 - [x] Hotkey support.
 - [ ] Secure notes (Markdown editor).
-- [ ] Local finance tracker.
+- [x] Local finance tracker.
 - [ ] Export/import (encrypted backup).
 - [x] Auto-lock on inactivity (5 min inactivity trigger).
 - [ ] Dark mode toggle.
