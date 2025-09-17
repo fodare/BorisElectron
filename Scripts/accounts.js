@@ -2,6 +2,7 @@ import {
    setStatusMessage,
    generateUsername,
    generateUserFriendlyPassword,
+   showConfirmModal,
 } from "./helper.js";
 
 async function setupCredentialPageInteractions() {
@@ -144,7 +145,7 @@ async function setUpAddAccountPageIntractions() {
             urlinput ||
             accountNote
          ) {
-            const confirmEscape = confirm(
+            const confirmEscape = await showConfirmModal(
                "Are you sure you want to exit window ? All info enterd without saving will be lost!"
             );
             if (confirmEscape) {

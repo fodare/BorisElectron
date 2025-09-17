@@ -7,12 +7,28 @@ contextBridge.exposeInMainWorld("versions", {
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
+   // #region App listeners
+
+   navigateTo: (page) => ipcRenderer.send("navigate-to", page),
+   sendInactiveSession: () => ipcRenderer.send("inactive-timeout"),
+   appInfo: () => ipcRenderer.invoke("read-app-info"),
+   // showConfirmationDialog: (type, message) =>
+   //    ipcRenderer.invoke("show-confirmation-dialog", { type, message }),
+
+   // #endregion
+
+   // #region MasterPassword listeners
+
    createMasterPassword: (passwordInput) =>
       ipcRenderer.invoke("create-master-password", { passwordInput }),
    login: (passwordInput) =>
       ipcRenderer.invoke("verify-master-password", { passwordInput }),
    checkForMasterPassword: () => ipcRenderer.invoke("has-master-password"),
-   navigateTo: (page) => ipcRenderer.send("navigate-to", page),
+
+   // #endregion
+
+   // #region Accounts listeners
+
    renderAddAccountWindow: () => ipcRenderer.send("render-account-prompt"),
    saveAccount: (
       accountName,
@@ -45,10 +61,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
       }),
    deleteAccount: (accountName) =>
       ipcRenderer.invoke("delete-account", accountName),
-   sendInactiveSession: () => ipcRenderer.send("inactive-timeout"),
-   appInfo: () => ipcRenderer.invoke("read-app-info"),
-   showConfirmationDialog: (type, message) =>
-      ipcRenderer.invoke("show-confirmation-dialog", { type, message }),
+
+   // #endregion
+
+   // #region Transactions listeners
+
    renderAddTransactionWindow: () =>
       ipcRenderer.send("render-transaction-prompt"),
    closeAddTransactionWindow: () =>
@@ -61,4 +78,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.on("refresh-transactions", callback),
    deletetransaction: (tranactionID) =>
       ipcRenderer.invoke("delete-transaction", tranactionID),
+
+   // #endregion
 });

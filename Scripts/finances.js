@@ -1,4 +1,4 @@
-import { setStatusMessage } from "./helper.js";
+import { setStatusMessage, showConfirmModal } from "./helper.js";
 
 async function setupFinancesInteractions() {
    window.electronAPI.onRefreshTransaction(async (event, ...args) => {
@@ -288,7 +288,7 @@ async function addTableInteractions(tableBodyId) {
       if (event.key === "Delete") {
          event.preventDefault();
          if (selectedRow) {
-            const confirmDeletion = confirm(
+            const confirmDeletion = await showConfirmModal(
                "Are you sure you want to delete this entry?. Please note action is not reversible!"
             );
             if (confirmDeletion) {
