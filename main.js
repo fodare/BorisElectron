@@ -46,6 +46,7 @@ function createWindow() {
       mainWindow = null;
    });
 }
+// #region App listeners
 
 app.whenReady().then(() => {
    createWindow();
@@ -61,6 +62,39 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
    if (mainWindow === null) createWindow();
 });
+
+ipcMain.on("inactive-timeout", () => {
+   sessionKey = null;
+   sessionMasterPassword = null;
+   app.quit();
+});
+
+ipcMain.handle("read-app-info", async (event) => {
+   return {
+      appVersion: app.getVersion(),
+      appDataDir: app.getPath("userData"),
+   };
+});
+
+ipcMain.on("navigate-to", (event, page) => {
+   mainWindow.loadFile(path.join(APP_DIR, `/Pages/${page}`));
+});
+
+// ipcMain.handle("show-confirmation-dialog", async (event, { type, message }) => {
+//    const result = await dialog.showMessageBox(mainWindow, {
+//       type: type || "warning",
+//       buttons: ["Yes", "No"],
+//       defaultId: 1,
+//       title: app.getName() || "Confirm",
+//       message: message,
+//       cancelId: 1,
+//    });
+//    return result.response === 0;
+// });
+
+// #endregion
+
+// #region MasterPassword listners
 
 ipcMain.handle("create-master-password", (event, { passwordInput }) => {
    try {
@@ -113,9 +147,9 @@ ipcMain.handle("has-master-password", (event) => {
    return masterPasswordExist();
 });
 
-ipcMain.on("navigate-to", (event, page) => {
-   mainWindow.loadFile(path.join(APP_DIR, `/Pages/${page}`));
-});
+// #endregion
+
+// #region Accounts listeners
 
 ipcMain.on("render-account-prompt", (event) => {
    if (accountPromptWindow) {
@@ -342,30 +376,9 @@ ipcMain.handle("delete-account", (event, accountName) => {
    return result;
 });
 
-ipcMain.on("inactive-timeout", () => {
-   sessionKey = null;
-   sessionMasterPassword = null;
-   app.quit();
-});
+// #endregion
 
-ipcMain.handle("read-app-info", async (event) => {
-   return {
-      appVersion: app.getVersion(),
-      appDataDir: app.getPath("userData"),
-   };
-});
-
-ipcMain.handle("show-confirmation-dialog", async (event, { type, message }) => {
-   const result = await dialog.showMessageBox(mainWindow, {
-      type: type || "warning",
-      buttons: ["Yes", "No"],
-      defaultId: 1,
-      title: app.getName() || "Confirm",
-      message: message,
-      cancelId: 1,
-   });
-   return result.response === 0;
-});
+// #region Transactions listeners
 
 ipcMain.on("render-transaction-prompt", async () => {
    if (transactionPromptWindow) {
@@ -511,3 +524,5 @@ ipcMain.handle("delete-transaction", (event, tranactionID) => {
 
    return result;
 });
+
+// #endregion
