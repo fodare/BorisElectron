@@ -2,6 +2,7 @@ import {
    getMasterPassWordInput,
    setStatusMessage,
    isMasterPasswordExist,
+   showConfirmModal,
 } from "./helper.js";
 
 async function handleLogin() {
@@ -31,14 +32,13 @@ async function handleRegister() {
       const masterPasswordExists = await isMasterPasswordExist();
 
       if (masterPasswordExists) {
-         const warningMessage = `A master password has already been set.\n\nCreating a new master password will make any previously saved data permanently inaccessible, as it cannot be decrypted without the original password.\n\nDo you want to proceed anyway?`;
-
-         const userConfirmed = await window.electronAPI.showConfirmationDialog(
-            "warning",
-            warningMessage
+         const confirmOverwrite = await showConfirmModal(
+            `A master-password is already set.\n\n` +
+               `Creating a new one will make any previously saved data permanently inaccessible.\n\n` +
+               `Proceed anyway?`
          );
 
-         if (!userConfirmed) {
+         if (!confirmOverwrite) {
             setStatusMessage(
                "Registration cancelled. Existing data remains safe."
             );

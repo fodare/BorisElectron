@@ -127,7 +127,7 @@ function addTableInteractions(tableBodyId) {
       if (event.key === "Delete") {
          event.preventDefault();
          if (selectedRow) {
-            const confirmDeletion = confirm(
+            const confirmDeletion = await showConfirmModal(
                "Are you sure you want to delete this entry?. Please note action is not reversible!"
             );
             if (confirmDeletion) {
@@ -409,6 +409,34 @@ async function generateUserFriendlyPassword(length) {
       .join("");
 }
 
+async function showConfirmModal(message) {
+   return new Promise((resolve) => {
+      const modal = document.getElementById("confirmModal");
+      const messageElement = document.getElementById("confirmMessage");
+      const yesBtn = document.getElementById("confirmYes");
+      const noBtn = document.getElementById("confirmNo");
+
+      messageElement.textContent = message;
+      modal.classList.remove("hidden");
+
+      const cleanup = () => {
+         modal.classList.add("hidden");
+         yesBtn.onclick = null;
+         noBtn.onclick = null;
+      };
+
+      yesBtn.onclick = () => {
+         cleanup();
+         resolve(true);
+      };
+
+      noBtn.onclick = () => {
+         cleanup();
+         resolve(false);
+      };
+   });
+}
+
 export {
    isMasterPasswordExist,
    getMasterPassWordInput,
@@ -418,4 +446,5 @@ export {
    monitorAppInactivity,
    generateUsername,
    generateUserFriendlyPassword,
+   showConfirmModal,
 };
