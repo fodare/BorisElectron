@@ -8,14 +8,14 @@ import {
 async function handleLogin() {
    const passwordInput = getMasterPassWordInput();
    if (!passwordInput) {
-      setStatusMessage("Please enter a vlaid master-password!");
+      setStatusMessage("Error", "Please enter a vlaid master-password!");
       return;
    }
    const loginStatus = await window.electronAPI.login(passwordInput);
    if (!loginStatus.success) {
-      setStatusMessage(loginStatus.message);
+      setStatusMessage("Error", loginStatus.message);
    } else {
-      setStatusMessage(loginStatus.message);
+      setStatusMessage("Info", loginStatus.message);
       await window.electronAPI.navigateTo("credentials.html");
    }
 }
@@ -24,7 +24,7 @@ async function handleRegister() {
    const passwordInput = getMasterPassWordInput();
 
    if (!passwordInput) {
-      setStatusMessage("Please enter a valid master password!");
+      setStatusMessage("Error", "Please enter a valid master password!");
       return;
    }
 
@@ -39,8 +39,7 @@ async function handleRegister() {
          );
 
          if (!confirmOverwrite) {
-            setStatusMessage(
-               "Registration cancelled. Existing data remains safe."
+            setStatusMessage("Info", "Registration cancelled. Existing data remains safe."
             );
             return;
          }
@@ -51,16 +50,16 @@ async function handleRegister() {
       );
 
       if (!registrationStatus.success) {
-         setStatusMessage(registrationStatus.message);
+         setStatusMessage("Error",registrationStatus.message);
          return;
       }
 
-      setStatusMessage(registrationStatus.message);
+      setStatusMessage("Info",registrationStatus.message);
       setTimeout(() => {
          window.electronAPI.navigateTo("login.html");
       }, 1500);
    } catch (error) {
-      setStatusMessage(`Error registering. ${error.message}`);
+      setStatusMessage("Error",`Error registering. ${error.message}`);
    }
 }
 

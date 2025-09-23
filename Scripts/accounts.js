@@ -51,7 +51,7 @@ async function setupCredentialPageInteractions() {
    if (accounts.success) {
       injectAccountsIntoTable(accounts.data);
    } else {
-      setStatusMessage(accounts.error);
+      setStatusMessage("Error",accounts.error);
    }
 }
 
@@ -94,11 +94,11 @@ async function setUpAddAccountPageIntractions() {
          accountNotes,
       } = getAddAccountInputs();
       if (!accountName) {
-         setStatusMessage("Account name is required!");
+         setStatusMessage("Error","Account name is required!");
          return;
       }
       if (await accountAlreadyExist(accountName)) {
-         setStatusMessage(
+         setStatusMessage("Error",
             `An account with the name ${accountName} already exists!`
          );
          return;
@@ -174,7 +174,7 @@ async function saveNewAccountInfo(
       accountUrl,
       accountNotes
    );
-   setStatusMessage(saveAccountResponse.message);
+   setStatusMessage("Info",saveAccountResponse.message);
    if (saveAccountResponse.success) {
       await window.electronAPI.notifyAccountAdded();
       setTimeout(() => {
@@ -209,7 +209,7 @@ async function refreshAccountsTable() {
    if (accounts.success) {
       injectAccountsIntoTable(accounts.data);
    } else {
-      setStatusMessage(accounts.error);
+      setStatusMessage("Error",accounts.error);
    }
 }
 
@@ -221,7 +221,7 @@ async function handleSearchAccount() {
    const accountNameInput = getSearchInputValue();
    const savedAccounts = await getSavedAccounts();
    if (!savedAccounts.success) {
-      setStatusMessage(savedAccounts.message);
+      setStatusMessage("Error",savedAccounts.message);
       return;
    }
 
@@ -232,8 +232,7 @@ async function handleSearchAccount() {
    if (searchedAccount) {
       injectAccountsIntoTable(searchedAccount);
    } else {
-      setStatusMessage(
-         `There are no account with the name ${accountNameInput}!`
+      setStatusMessage("Info",`There are no account with the name ${accountNameInput}!`
       );
    }
 }
@@ -278,7 +277,7 @@ async function setUpUpdateAccountInteractions() {
             };
 
             if (!updatedAccountInfo.name) {
-               setStatusMessage("Account name can not be null / empty!");
+               setStatusMessage("Error","Account name can not be null / empty!");
                return;
             }
 
@@ -288,7 +287,7 @@ async function setUpUpdateAccountInteractions() {
                   updatedAccountInfo
                );
 
-            setStatusMessage(updateAccountResponse.message);
+            setStatusMessage("Info",updateAccountResponse.message);
 
             if (updateAccountResponse.success) {
                setTimeout(() => {

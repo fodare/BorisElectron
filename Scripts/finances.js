@@ -55,7 +55,7 @@ async function setupFinancesInteractions() {
       await injectTransactionsIntoTable(sortedTransaction);
       await calculateTotals(sortedTransaction);
    } else {
-      setStatusMessage(transactions.error);
+      setStatusMessage("Error",transactions.error);
    }
 }
 
@@ -66,13 +66,13 @@ async function setupAddTransactionInteractions() {
       event.preventDefault();
       const { isValid, errors } = await validateTransactionForm();
       if (!isValid) {
-         setStatusMessage(errors.join(" "));
+         setStatusMessage("Error",errors.join(" "));
          return;
       }
       const transactionData = await getTransactionFormInput();
       const recordTransactionResponse =
          await window.electronAPI.recordTransaction(transactionData);
-      setStatusMessage(recordTransactionResponse.message);
+      setStatusMessage("Info",recordTransactionResponse.message);
       if (recordTransactionResponse.success) {
          window.electronAPI.notifyTransactionAdded();
          setTimeout(async () => {
@@ -210,7 +210,7 @@ async function refreshTransactionsTable() {
       await injectTransactionsIntoTable(sortedTransaction);
       await calculateTotals(sortedTransaction);
    } else {
-      setStatusMessage(transactions.error);
+      setStatusMessage("Error",transactions.error);
    }
 }
 
@@ -297,7 +297,7 @@ async function addTableInteractions(tableBodyId) {
                const delettionResult =
                   await window.electronAPI.deletetransaction(tranactionID);
 
-               setStatusMessage(delettionResult.message);
+               setStatusMessage("Info",delettionResult.message);
                if (delettionResult.success) {
                   await refreshTransactionsTable();
                }
