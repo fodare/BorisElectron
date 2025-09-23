@@ -60,7 +60,7 @@ async function renderAddAccountWindow() {
 }
 
 function getAddAccountInputs() {
-   const rawNotes = document.getElementById("accountNote")?.value.trim() || "";
+   let rawNotes = document.getElementById("accountNote")?.value.trim() || "";
 
    return {
       accountName: document.getElementById("accountNameInput")?.value.trim(),
@@ -178,7 +178,7 @@ async function saveNewAccountInfo(
    if (saveAccountResponse.success) {
       await window.electronAPI.notifyAccountAdded();
       setTimeout(() => {
-         window.electronAPI.closeAddAccountWindow();
+        clearAccountEntry();
       }, 3500);
    }
 }
@@ -297,6 +297,14 @@ async function setUpUpdateAccountInteractions() {
          });
    });
 }
+
+function clearAccountEntry() {
+  ["accountNameInput", "usernameInput", "passwordInput", "urlInput", "accountNote"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+}
+
 
 export {
    setupCredentialPageInteractions,

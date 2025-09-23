@@ -76,7 +76,7 @@ async function setupAddTransactionInteractions() {
       if (recordTransactionResponse.success) {
          window.electronAPI.notifyTransactionAdded();
          setTimeout(async () => {
-            await window.electronAPI.closeAddTransactionWindow();
+            clearTransactionEntry()
          }, 3500);
       }
    });
@@ -305,6 +305,15 @@ async function addTableInteractions(tableBodyId) {
          }
       }
    });
+}
+
+function clearTransactionEntry() {
+  ["transactionDate", "transactionCategory", "transactionAmount", "transactionNote"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  const transactionType = document.getElementById("transactionType");
+  if (transactionType) transactionType.value = "";
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
