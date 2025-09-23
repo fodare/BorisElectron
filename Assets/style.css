@@ -94,6 +94,10 @@ body{
   color: var(--text-color) !important;
 }
 
+.toast-container{
+  z-index: 1 !important;
+}
+
 /* Custom Modal styling */
 .modal.hidden {
   display: none;
