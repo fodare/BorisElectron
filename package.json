@@ -1,6 +1,6 @@
 {
   "name": "openops-boris",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Local electron app to help manage credentials, track finances...",
   "main": "main.js",
   "type": "module",
