@@ -14,7 +14,7 @@ function setStatusMessage(message) {
       (() => {
          const container = document.createElement("div");
          container.id = "toast-container";
-         container.classList.add("position-fixed", "top-0", "end-0", "p-3");
+         container.classList.add("position-fixed", "top-0", "end-0", "p-3","toast-container");
          document.body.appendChild(container);
          return container;
       })();
