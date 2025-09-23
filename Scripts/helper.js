@@ -8,7 +8,7 @@ function getMasterPassWordInput() {
    return document.getElementById("masterPasswordInput")?.value.trim();
 }
 
-function setStatusMessage(message) {
+function setStatusMessage(notificationType, message) {
    const toastContainer =
       document.getElementById("toast-container") ||
       (() => {
@@ -24,7 +24,7 @@ function setStatusMessage(message) {
    toast.setAttribute("role", "alert");
    toast.innerHTML = `
       <div class="toast-header">
-         <strong class="me-auto">Notification</strong>
+         <strong class="me-auto">${notificationType}</strong>
       </div>
       <div class="toast-body">${message}</div>
    `;
@@ -66,8 +66,7 @@ async function injectNavbar() {
             window.electronAPI.navigateTo(href);
          });
       });
-   } catch (err) {
-      setStatusMessage(`Failed to load navbar: ${err.message}`);
+   } catch (err) {"Error",setStatusMessage(`Failed to load navbar: ${err.message}`);
    }
 }
 
@@ -117,8 +116,8 @@ function addTableInteractions(tableBodyId) {
          if (copiedText) {
             navigator.clipboard
                .writeText(copiedText)
-               .then(() => setStatusMessage("Copied!"))
-               .catch((err) => setStatusMessage("Clipboard error:", err));
+               .then(() => setStatusMessage("Info","Copied!"))
+               .catch((err) => setStatusMessage("Error","Clipboard error:", err));
             event.preventDefault();
          }
       }
@@ -136,7 +135,7 @@ function addTableInteractions(tableBodyId) {
                   accountName
                );
 
-               setStatusMessage(delettionResult.message);
+               setStatusMessage("Info",delettionResult.message);
                if (delettionResult.success) {
                   await refreshAccountsTable();
                }
