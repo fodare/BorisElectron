@@ -55,7 +55,7 @@ async function setupFinancesInteractions() {
       await injectTransactionsIntoTable(sortedTransaction);
       await calculateTotals(sortedTransaction);
    } else {
-      setStatusMessage("Error",transactions.error);
+      setStatusMessage("Error", transactions.error);
    }
 }
 
@@ -66,17 +66,17 @@ async function setupAddTransactionInteractions() {
       event.preventDefault();
       const { isValid, errors } = await validateTransactionForm();
       if (!isValid) {
-         setStatusMessage("Error",errors.join(" "));
+         setStatusMessage("Error", errors.join(" "));
          return;
       }
       const transactionData = await getTransactionFormInput();
       const recordTransactionResponse =
          await window.electronAPI.recordTransaction(transactionData);
-      setStatusMessage("Info",recordTransactionResponse.message);
+      setStatusMessage("Info", recordTransactionResponse.message);
       if (recordTransactionResponse.success) {
          window.electronAPI.notifyTransactionAdded();
          setTimeout(async () => {
-            clearTransactionEntry()
+            clearTransactionEntry();
          }, 3500);
       }
    });
@@ -210,7 +210,7 @@ async function refreshTransactionsTable() {
       await injectTransactionsIntoTable(sortedTransaction);
       await calculateTotals(sortedTransaction);
    } else {
-      setStatusMessage("Error",transactions.error);
+      setStatusMessage("Error", transactions.error);
    }
 }
 
@@ -297,7 +297,7 @@ async function addTableInteractions(tableBodyId) {
                const delettionResult =
                   await window.electronAPI.deletetransaction(tranactionID);
 
-               setStatusMessage("Info",delettionResult.message);
+               setStatusMessage("Info", delettionResult.message);
                if (delettionResult.success) {
                   await refreshTransactionsTable();
                }
@@ -308,12 +308,17 @@ async function addTableInteractions(tableBodyId) {
 }
 
 function clearTransactionEntry() {
-  ["transactionDate", "transactionCategory", "transactionAmount", "transactionNote"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-  const transactionType = document.getElementById("transactionType");
-  if (transactionType) transactionType.value = "";
+   [
+      "transactionDate",
+      "transactionCategory",
+      "transactionAmount",
+      "transactionNote",
+   ].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+   });
+   const transactionType = document.getElementById("transactionType");
+   if (transactionType) transactionType.value = "";
 }
 
 export { setupFinancesInteractions, setupAddTransactionInteractions };
