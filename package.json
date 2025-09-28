@@ -34,6 +34,7 @@
   "devDependencies": {
     "@babel/core": "^7.28.0",
     "@babel/preset-env": "^7.28.0",
+    "@playwright/test": "^1.55.1",
     "babel-jest": "^30.0.5",
     "electron": "^37.2.3",
     "electron-builder": "^23.6.0",
