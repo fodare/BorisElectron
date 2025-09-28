@@ -144,3 +144,6 @@ package-lock.json
 Data/*
 snapcraft_login_file.txt
 local.txt
+
+# Local test results
+test-results/*
