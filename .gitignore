@@ -147,3 +147,4 @@ local.txt
 
 # Local test results
 test-results/*
+playwright-report/*
