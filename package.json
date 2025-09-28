@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "playwright test",
-    "ci-test": "ELECTRON_DISABLE_SANDBOX=1 playwright test",
+    "ci-test": "xvfb-run --auto-servernum -- ELECTRON_DISABLE_SANDBOX=1 playwright test",
     "start": "electron .",
     "watch": "nodemon --exec electron .",
     "build": "electron-builder --linux snap",
