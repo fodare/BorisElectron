@@ -1,4 +1,4 @@
-[![build_and_publish_snap](https://github.com/fodare/BorisElectron/actions/workflows/ci-cd.yaml/badge.svg)](https://github.com/fodare/BorisElectron/actions/workflows/ci-cd.yaml)
+[![build_and_publish_snap](https://github.com/fodare/BorisElectron/actions/workflows/build-test-release.yaml/badge.svg)](https://github.com/fodare/BorisElectron/actions/workflows/build-test-release.yaml)
 
 # 🔐 Boris
 
