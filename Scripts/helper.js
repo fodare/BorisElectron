@@ -14,7 +14,13 @@ function setStatusMessage(notificationType, message) {
       (() => {
          const container = document.createElement("div");
          container.id = "toast-container";
-         container.classList.add("position-fixed", "top-0", "end-0", "p-3","toast-container");
+         container.classList.add(
+            "position-fixed",
+            "top-0",
+            "end-0",
+            "p-3",
+            "toast-container"
+         );
          document.body.appendChild(container);
          return container;
       })();
@@ -66,7 +72,8 @@ async function injectNavbar() {
             window.electronAPI.navigateTo(href);
          });
       });
-   } catch (err) {"Error",setStatusMessage(`Failed to load navbar: ${err.message}`);
+   } catch (err) {
+      "Error", setStatusMessage(`Failed to load navbar: ${err.message}`);
    }
 }
 
@@ -116,8 +123,10 @@ function addTableInteractions(tableBodyId) {
          if (copiedText) {
             navigator.clipboard
                .writeText(copiedText)
-               .then(() => setStatusMessage("Info","Copied!"))
-               .catch((err) => setStatusMessage("Error","Clipboard error:", err));
+               .then(() => setStatusMessage("Info", "Copied!"))
+               .catch((err) =>
+                  setStatusMessage("Error", "Clipboard error:", err)
+               );
             event.preventDefault();
          }
       }
@@ -135,7 +144,7 @@ function addTableInteractions(tableBodyId) {
                   accountName
                );
 
-               setStatusMessage("Info",delettionResult.message);
+               setStatusMessage("Info", delettionResult.message);
                if (delettionResult.success) {
                   await refreshAccountsTable();
                }

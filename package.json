@@ -1,6 +1,6 @@
 {
   "name": "openops-boris",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Local electron app to help manage credentials, track finances...",
   "main": "main.js",
   "type": "module",
@@ -8,14 +8,14 @@
     "boris": "dist/main.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "playwright test",
+    "ci-test": "ELECTRON_DISABLE_SANDBOX=1 xvfb-run --auto-servernum -- playwright test",
     "start": "electron .",
     "watch": "nodemon --exec electron .",
     "build": "electron-builder --linux snap",
     "local-build": "electron-builder build --dir",
     "fix-sandbox": "sudo chown root:root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox",
-    "ci-start": "ELECTRON_DISABLE_SANDBOX=1 electron .",
-    "ci-test": "ELECTRON_DISABLE_SANDBOX=1 jest"
+    "ci-start": "ELECTRON_DISABLE_SANDBOX=1 electron ."
   },
   "icon": "Assets/icon.png",
   "repository": {
@@ -32,12 +32,9 @@
   },
   "homepage": "https://github.com/fodare/BorisElectron#readme",
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/preset-env": "^7.28.0",
-    "babel-jest": "^30.0.5",
+    "@playwright/test": "^1.55.1",
     "electron": "^37.2.3",
     "electron-builder": "^23.6.0",
-    "jest": "^30.0.5",
     "nodemon": "^3.1.10"
   },
   "build": {
