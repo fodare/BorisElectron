@@ -10,6 +10,7 @@ test.describe("End-to-end Test", () => {
    const dummyPassword = "test";
    const wrongPassword = "test1";
    const testAccountName = "Test Account 1";
+   const InvalidAccountName = "Unknown Test 1";
 
    //#region Helpers
 
@@ -62,6 +63,18 @@ test.describe("End-to-end Test", () => {
       await win.locator("#masterPasswordInput").fill(password);
       await win.locator("#loginBtn").click();
    };
+
+   const createAccount = async function createNewAccount(name = testAccountName, appWindow = window, electronApp = electronApp) {
+      await appWindow.locator('#addAccountBtn').click();
+      const accountWindow = await electronApp.waitForEvent('window');
+      await accountWindow.locator('#generateAccountBtn').click();
+      await accountWindow.locator('#accountNameInput').fill(name);
+      const usernameInputCount = await accountWindow.locator('#usernameInput').count();
+      expect(usernameInputCount).toBeGreaterThan(0);
+      await accountWindow.locator('#addAccountBtn').click();
+      await expect(accountWindow.locator('.toast-body')).toHaveText('Wrote account to file!');
+      await accountWindow.close();
+   }
 
    //#endregion
 
@@ -194,6 +207,62 @@ test.describe("End-to-end Test", () => {
 
       const errorToast = newAccountWindow.locator(".toast-body");
       await expect(errorToast).toHaveText("Account name is required!");
+   });
+
+   test("search for a known account", async () => {
+      await register(window);
+      await login(window);
+      
+      await window.locator("#addAccountBtn").click();
+      const newAccountWindow = await electronApp.waitForEvent("window");
+      await newAccountWindow.locator("#generateAccountBtn").click();
+      await newAccountWindow.locator("#accountNameInput").fill(testAccountName);
+
+      const userNameInputCount = await newAccountWindow.locator("#usernameInput").count();
+      expect(userNameInputCount).toBeGreaterThan(0);
+      await newAccountWindow.locator("#addAccountBtn").click();
+      await expect(newAccountWindow.locator(".toast-body")).toHaveText("Wrote account to file!");
+      await newAccountWindow.close();
+      
+      await window.locator("#accountNameInput").fill(testAccountName);
+      await expect(window.locator("#searchBtn")).toBeVisible();
+      await window.locator("#searchBtn").click();
+      const accountNameCell = window.locator(`text=${testAccountName}`);
+      await expect(accountNameCell).toBeVisible();
+      await expect(accountNameCell).toHaveText(testAccountName);
+   });
+
+   test("returns no account for unknown name", async () => {
+      await register(window);
+      await login(window);
+      
+      await window.locator("#addAccountBtn").click();
+      const newAccountWindow = await electronApp.waitForEvent("window");
+      await newAccountWindow.locator("#generateAccountBtn").click();
+      await newAccountWindow.locator("#accountNameInput").fill(testAccountName);
+      const userNameInputCount = await newAccountWindow.locator("#usernameInput").count();
+      expect(userNameInputCount).toBeGreaterThan(0);
+      await newAccountWindow.locator("#addAccountBtn").click();
+      await expect(newAccountWindow.locator(".toast-body")).toHaveText("Wrote account to file!");
+      await newAccountWindow.close();
+
+      await window.locator("#accountNameInput").fill(InvalidAccountName);
+      await expect(window.locator("#searchBtn")).toBeVisible();
+      await window.locator("#searchBtn").click();
+      const notificationText = window.locator(`text=${InvalidAccountName}`);
+      await expect(notificationText).toHaveText(`There are no account with the name ${InvalidAccountName}!`);
+   });
+
+   test.only('double-clicking account opens edit window', async () => {
+      await register(window);
+      await login(window);
+      await createAccount(testAccountName, window, electronApp);
+      const accountRow = window.locator(`text=${testAccountName}`);
+      await accountRow.dblclick();
+      const editWindow = await electronApp.waitForEvent('window');
+      await expect(editWindow.locator('#accountName')).toHaveValue(testAccountName);
+      await expect(editWindow.locator("#accountUsername")).toHaveValue()
+      await editWindow.close();
    });
 
    //#endregion
