@@ -243,6 +243,13 @@ ipcMain.handle("read-saved-accounts", (event) => {
       sessionKey
    );
 
+   if (!savedAccounts.success && savedAccounts.data.length === 0) {
+      return {
+         success: false,
+         message: "No persisted account(s).",
+      }
+   }
+
    if (!savedAccounts.success || !derivedKey.success) {
       return {
          success: false,

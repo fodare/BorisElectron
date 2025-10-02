@@ -50,8 +50,8 @@ async function setupCredentialPageInteractions() {
    const accounts = await getSavedAccounts();
    if (accounts.success) {
       injectAccountsIntoTable(accounts.data);
-   } else {
-      setStatusMessage("Error", accounts.error);
+   }else {
+      setStatusMessage("Info", accounts.message);
    }
 }
 
