@@ -11,6 +11,7 @@ test.describe("End-to-end Test", () => {
    const wrongPassword = "test1";
    const testAccountName = "Test Account 1";
    const InvalidAccountName = "Unknown Test 1";
+   const updatedAccountName = "Test Account Updated";
 
    //#region Helpers
 
@@ -227,6 +228,41 @@ test.describe("End-to-end Test", () => {
       const editWindow = await electronApp.waitForEvent('window');
       await expect(editWindow.locator('#accountName')).toHaveValue(testAccountName);
       await editWindow.close();
+   });
+
+   test('should allow updating a given account', async () => {
+      await register(window);
+      await login(window);
+      await createAccount(testAccountName, window, electronApp);
+
+      await window.locator(`text=${testAccountName}`).dblclick();
+      const editWindow = await electronApp.waitForEvent('window');
+      const accountNameInput = editWindow.locator('#accountName');
+      const updateButton = editWindow.locator('#updateAccountBtn');
+      const toast = editWindow.locator('.toast-body');
+
+      await expect(accountNameInput).toHaveValue(testAccountName);
+      await accountNameInput.fill(updatedAccountName);
+      await updateButton.click();
+
+      await expect(toast).toHaveText('Account updated successfully.');
+      await editWindow.close();
+      await expect(window.locator(`text=${updatedAccountName}`)).toBeVisible();
+   });
+
+   test('should allow account deletion', async () => {
+      await register(window);
+      await login(window);
+      await createAccount(testAccountName, window, electronApp);
+
+      const accountRow = window.locator(`text=${testAccountName}`);
+      await accountRow.click();
+      await window.keyboard.press('Delete');
+      await window.locator('#confirmYes').click();
+
+      const toast = window.locator('.toast-body');
+      await expect(toast).toHaveText('Account deleted successfully');
+      await expect(accountRow).not.toBeVisible();
    });
 
    //#endregion
