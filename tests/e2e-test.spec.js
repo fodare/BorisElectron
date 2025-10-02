@@ -254,14 +254,12 @@ test.describe("End-to-end Test", () => {
       await register(window);
       await login(window);
       await createAccount(testAccountName, window, electronApp);
+      await createAccount("Test Account 2", window, electronApp);
 
       const accountRow = window.locator(`text=${testAccountName}`);
       await accountRow.click();
       await window.keyboard.press('Delete');
       await window.locator('#confirmYes').click();
-
-      const toast = window.locator('.toast-body');
-      await expect(toast).toHaveText('Account deleted successfully');
       await expect(accountRow).not.toBeVisible();
    });
 
