@@ -171,23 +171,7 @@ test.describe("End-to-end Test", () => {
    test("should allow adding new account to saved credentials", async () => {
       await register(window);
       await login(window);
-
-      await window.locator("#addAccountBtn").click();
-      const newAccountWindow = await electronApp.waitForEvent("window");
-
-      await newAccountWindow.locator("#generateAccountBtn").click();
-      const userNameInputCount = await newAccountWindow
-         .locator("#usernameInput")
-         .count();
-
-      await newAccountWindow.locator("#accountNameInput").fill(testAccountName);
-
-      expect(userNameInputCount).toBeGreaterThan(0);
-      await newAccountWindow.locator("#addAccountBtn").click();
-      await expect(newAccountWindow.locator(".toast-body")).toHaveText(
-         "Wrote account to file!"
-      );
-      await newAccountWindow.close();
+      await createAccount(testAccountName, window, electronApp);
       const accountNameCell = window.locator(`text=${testAccountName}`);
       await expect(accountNameCell).toBeVisible();
       await expect(accountNameCell).toHaveText(testAccountName);
@@ -212,17 +196,7 @@ test.describe("End-to-end Test", () => {
    test("search for a known account", async () => {
       await register(window);
       await login(window);
-      
-      await window.locator("#addAccountBtn").click();
-      const newAccountWindow = await electronApp.waitForEvent("window");
-      await newAccountWindow.locator("#generateAccountBtn").click();
-      await newAccountWindow.locator("#accountNameInput").fill(testAccountName);
-
-      const userNameInputCount = await newAccountWindow.locator("#usernameInput").count();
-      expect(userNameInputCount).toBeGreaterThan(0);
-      await newAccountWindow.locator("#addAccountBtn").click();
-      await expect(newAccountWindow.locator(".toast-body")).toHaveText("Wrote account to file!");
-      await newAccountWindow.close();
+      await createAccount(testAccountName, window, electronApp);
       
       await window.locator("#accountNameInput").fill(testAccountName);
       await expect(window.locator("#searchBtn")).toBeVisible();
@@ -235,16 +209,7 @@ test.describe("End-to-end Test", () => {
    test("returns no account for unknown name", async () => {
       await register(window);
       await login(window);
-      
-      await window.locator("#addAccountBtn").click();
-      const newAccountWindow = await electronApp.waitForEvent("window");
-      await newAccountWindow.locator("#generateAccountBtn").click();
-      await newAccountWindow.locator("#accountNameInput").fill(testAccountName);
-      const userNameInputCount = await newAccountWindow.locator("#usernameInput").count();
-      expect(userNameInputCount).toBeGreaterThan(0);
-      await newAccountWindow.locator("#addAccountBtn").click();
-      await expect(newAccountWindow.locator(".toast-body")).toHaveText("Wrote account to file!");
-      await newAccountWindow.close();
+      await createAccount(testAccountName, window, electronApp);
 
       await window.locator("#accountNameInput").fill(InvalidAccountName);
       await expect(window.locator("#searchBtn")).toBeVisible();
@@ -253,7 +218,7 @@ test.describe("End-to-end Test", () => {
       await expect(notificationText).toHaveText(`There are no account with the name ${InvalidAccountName}!`);
    });
 
-   test.only('double-clicking account opens edit window', async () => {
+   test('double-clicking account opens edit window', async () => {
       await register(window);
       await login(window);
       await createAccount(testAccountName, window, electronApp);
@@ -261,7 +226,6 @@ test.describe("End-to-end Test", () => {
       await accountRow.dblclick();
       const editWindow = await electronApp.waitForEvent('window');
       await expect(editWindow.locator('#accountName')).toHaveValue(testAccountName);
-      await expect(editWindow.locator("#accountUsername")).toHaveValue()
       await editWindow.close();
    });
 
