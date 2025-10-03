@@ -195,11 +195,11 @@ function injectAccountsIntoTable(accounts) {
    accountArray.forEach((account) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-         <td>${account.name}</td>
-         <td>${account.userName}</td>
-         <td class="hidetext">${account.password}</td>
-         <td>${account.url}</td>
-         <td class="hidden-note">${account.notes}</td>
+         <td id="account_name">${account.name}</td>
+         <td id="account_user_name">${account.userName}</td>
+         <td class="hidetext" id="account_password">${account.password}</td>
+         <td id="account_url">${account.url}</td>
+         <td class="hidden-note" id="account_notes">${account.notes}</td>
       `;
       tableBody.appendChild(row);
    });
