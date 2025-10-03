@@ -247,7 +247,7 @@ ipcMain.handle("read-saved-accounts", (event) => {
       return {
          success: false,
          message: "No persisted account(s).",
-      }
+      };
    }
 
    if (!savedAccounts.success || !derivedKey.success) {
