@@ -35,7 +35,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       accountUserName,
       accountPassword,
       accountUrl,
-      accountNotes
+      accountNotes,
    ) =>
       ipcRenderer.invoke("save-account", {
          accountName,
