@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
    <head>
       <meta charset="UTF-8" />
@@ -20,7 +20,31 @@
             ></div>
             <div id="content-div" class="content-div col-12 col-md-10">
                <h1 class="page-heading">Notes</h1>
-               <div class="notesContents"></div>
+               <div class="notesContents pageContent">
+                  <div class="note_tools">
+                     <form class="d-flex" role="search">
+                        <input
+                           class="form-control me-3 narrow-input"
+                           type="search"
+                           placeholder="Note title / text..."
+                           aria-label="Search"
+                           id="searchText"
+                        />
+                        <button
+                           class="btn btn btn-outline-secondary"
+                           id="searchBtn"
+                        >
+                           Search
+                        </button>
+                        <button
+                           class="btn btn btn-outline-secondary"
+                           id="addNote"
+                        >
+                           Add Note
+                        </button>
+                     </form>
+                  </div>
+               </div>
             </div>
          </div>
       </div>
