@@ -292,6 +292,9 @@ body{
    overflow-y: auto;
 }
 
+/* Notes styling */
+
+
 /* Media styling */
 @media (min-width: 768px) {
    .nav-container {
