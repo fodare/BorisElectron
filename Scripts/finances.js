@@ -50,7 +50,7 @@ async function setupFinancesInteractions() {
    const transactions = await window.electronAPI.readSavedTransactions();
    if (transactions.success) {
       const sortedTransaction = await sortTransactionByDataDesc(
-         transactions.data
+         transactions.data,
       );
       await injectTransactionsIntoTable(sortedTransaction);
       await calculateTotals(sortedTransaction);
@@ -92,10 +92,10 @@ async function getTransactionFormInput() {
    const transactionDate = document.getElementById("transactionDate")?.value;
    const transactionType = document.getElementById("transactionType")?.value;
    const transactionCategory = document.getElementById(
-      "transactionCategory"
+      "transactionCategory",
    )?.value;
    const transactionAmount = parseFloat(
-      document.getElementById("transactionAmount")?.value
+      document.getElementById("transactionAmount")?.value,
    );
    const transactionNote = document.getElementById("transactionNote")?.value;
    const transactionId = await generateID();
@@ -123,7 +123,7 @@ async function validateTransactionForm() {
 
    if (!transactionId || transactionId == "") {
       errors.push(
-         "Problem with id genetation. Tansaction ID can not be null / empty!"
+         "Problem with id genetation. Tansaction ID can not be null / empty!",
       );
    }
 
@@ -163,7 +163,7 @@ async function validateTransactionForm() {
 
 async function injectTransactionsIntoTable(transactions) {
    const transactionsTableBody = document.getElementById(
-      "transactionstableBody"
+      "transactionstableBody",
    );
    transactionsTableBody.innerHTML = "";
    const transactionsArray = Array.isArray(transactions)
@@ -205,7 +205,7 @@ async function refreshTransactionsTable() {
    const transactions = await window.electronAPI.readSavedTransactions();
    if (transactions.success) {
       const sortedTransaction = await sortTransactionByDataDesc(
-         transactions.data
+         transactions.data,
       );
       await injectTransactionsIntoTable(sortedTransaction);
       await calculateTotals(sortedTransaction);
@@ -216,7 +216,7 @@ async function refreshTransactionsTable() {
 
 async function sortTransactionByDataDesc(transactions) {
    return transactions.sort(
-      (a, b) => new Date(b.transactionDate) - new Date(a.transactionDate)
+      (a, b) => new Date(b.transactionDate) - new Date(a.transactionDate),
    );
 }
 
@@ -289,7 +289,7 @@ async function addTableInteractions(tableBodyId) {
          event.preventDefault();
          if (selectedRow) {
             const confirmDeletion = await showConfirmModal(
-               "Are you sure you want to delete this entry?. Please note action is not reversible!"
+               "Are you sure you want to delete this entry?. Please note action is not reversible!",
             );
             if (confirmDeletion) {
                const cells = selectedRow.querySelectorAll("td");
