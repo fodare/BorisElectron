@@ -13,6 +13,8 @@ async function setupNoteInteractions() {
    const noteFormCollapse = document.getElementById("noteFormCollapse");
    const cancelNoteBtn = document.getElementById("cancel_note_btn");
 
+   const saveNoteBtn = document.getElementById("save_notet_btn");
+
    if (!searchText || !searchBtn || !addNoteBtn || !noteFormCollapse) {
       return;
    }
@@ -60,17 +62,20 @@ async function setupNoteInteractions() {
       event.preventDefault();
       noteform.hide();
    });
+
+   saveNoteBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      console.log(getNoteInputs());
+      return;
+   });
 }
 
 function getNoteInputs() {
-   let rawNotes =
-      document.getElementById("input_note_text")?.value.trim() || "";
    return {
-      noteTitle: document.getElementById("input_note_title")?.value.trim(),
-      noteText: rawNotes
-         .split(/\r?\n/)
-         .map((note) => note.trim)
-         .filter((note) => note.lenght > 0),
+      noteTitle:
+         document.getElementById("input_note_title")?.value.trim() || "",
+
+      noteText: document.getElementById("input_note_text")?.value.trim() || "",
    };
 }
 
