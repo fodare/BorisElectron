@@ -10,9 +10,14 @@ async function setupNoteInteractions() {
    const searchBtn = document.getElementById("searchBtn");
    const addNoteBtn = document.getElementById("addNote");
 
-   if (!searchText || !searchBtn || !addNoteBtn) {
+   const noteFormCollapse = document.getElementById("noteFormCollapse");
+   const cancelNoteBtn = document.getElementById("cancel_note_btn");
+
+   if (!searchText || !searchBtn || !addNoteBtn || !noteFormCollapse) {
       return;
    }
+
+   const noteform = new bootstrap.Collapse(noteFormCollapse, { toggle: false });
 
    function toggleSearchButton(showSearch) {
       searchBtn.style.display = showSearch ? "inline-block" : "none";
@@ -44,11 +49,29 @@ async function setupNoteInteractions() {
       setStatusMessage("info", "Search button search");
    });
 
-   addNoteBtn.addEventListener("click", async (event) => {
+   addNoteBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
       // Todo: handleAddNote()
-      setStatusMessage("Info", "Add note button clicked");
+      noteform.show();
+      document.getElementById("input_note_title")?.focus();
    });
+
+   cancelNoteBtn?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      noteform.hide();
+   });
+}
+
+function getNoteInputs() {
+   let rawNotes =
+      document.getElementById("input_note_text")?.value.trim() || "";
+   return {
+      noteTitle: document.getElementById("input_note_title")?.value.trim(),
+      noteText: rawNotes
+         .split(/\r?\n/)
+         .map((note) => note.trim)
+         .filter((note) => note.lenght > 0),
+   };
 }
 
 export { setupNoteInteractions };
