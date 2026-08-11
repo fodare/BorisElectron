@@ -62,10 +62,14 @@ async function setupNoteInteractions() {
       event.preventDefault();
       noteform.hide();
    });
-
    saveNoteBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
-      console.log(getNoteInputs());
+      const noteData = await getNoteInputs();
+      if (!noteData.noteTitle || !noteData.noteText) {
+         setStatusMessage("Error", "Note title and text are required!");
+         return;
+      }
+      await saveNoteInfo(noteData);
       return;
    });
 }
@@ -74,9 +78,17 @@ function getNoteInputs() {
    return {
       noteTitle:
          document.getElementById("input_note_title")?.value.trim() || "",
-
       noteText: document.getElementById("input_note_text")?.value.trim() || "",
    };
+}
+
+async function saveNoteInfo(noteData) {
+   const saveNoteResponse = await window.electronAPI.recordNote(noteData);
+   setStatusMessage("Info", saveNoteResponse.message);
+   if (saveNoteResponse.success) {
+      console.log("Note added successfully!");
+      console.log(saveNoteResponse.success, saveNoteResponse.message);
+   }
 }
 
 export { setupNoteInteractions };
