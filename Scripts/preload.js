@@ -80,4 +80,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.invoke("delete-transaction", tranactionID),
 
    // #endregion
+
+   // region Notes listeners
+   readSavedNotes: () => ipcRenderer.invoke("read-saved-notes"),
+   recordNote: (noteData) => ipcRenderer.invoke("record-notes", { noteData }),
+   // #endregion
 });
