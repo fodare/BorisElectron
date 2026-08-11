@@ -16,8 +16,11 @@ import {
    writeTransactionToFile,
    readTransactionsFromFile,
    deleteTransactionFromFile,
+   readNotesFromFile,
+   writeNoteToFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
+import { json } from "stream/consumers";
 
 let sessionMasterPassword = null;
 let sessionKey = null;
@@ -532,4 +535,77 @@ ipcMain.handle("delete-transaction", (event, tranactionID) => {
    return result;
 });
 
+// #endregion
+
+// #region Notes listeners
+ipcMain.handle("read-saved-notes", (event) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error reading notes. Master password not in session!",
+      };
+   }
+
+   const savedNotes = readNotesFromFile();
+   const derivedKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey,
+   );
+
+   if (!savedNotes.success || !derivedKey.success) {
+      return {
+         success: false,
+         message: "Failed to read or decrypt transactions.",
+      };
+   }
+
+   const decryptedNote = savedNotes.data
+      .map((note) => {
+         const result = decryptContent(note.iv, note.data, derivedKey.data);
+         if (result.success) {
+            return JSON.parse(result.data);
+         }
+         return null;
+      })
+      .filter(Boolean);
+
+   return {
+      success: true,
+      data: decryptedNote,
+   };
+});
+
+ipcMain.handle("record-notes", async (event, { notesData }) => {
+   console.log(JSON.stringify(notesData));
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Can not persist note. Master password not in session!",
+      };
+   }
+
+   const noteInfo = JSON.stringify(notesData);
+   let encryptionKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey,
+   );
+
+   let encryptedData = encryptContent(noteInfo, encryptionKey.data);
+   //console.log(noteInfo);
+   //console.log(encryptedData);
+   if (!encryptedData.success) {
+      return {
+         sucess: false,
+         message: "Error encrypting note. Please try again.",
+      };
+   }
+
+   const parsedContent = JSON.parse(encryptedData.encryptedContent);
+   const isNoteRecorded = writeNoteToFile(parsedContent);
+   if (isNoteRecorded.success) {
+      return { sucess: true, message: isNoteRecorded.message };
+   } else {
+      return { success: false, message: isNoteRecorded.message };
+   }
+});
 // #endregion
