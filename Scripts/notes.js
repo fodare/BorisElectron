@@ -62,14 +62,15 @@ async function setupNoteInteractions() {
       event.preventDefault();
       noteform.hide();
    });
+
    saveNoteBtn?.addEventListener("click", async (event) => {
       event.preventDefault();
-      const noteData = await getNoteInputs();
+      const noteData = getNoteInputs();
       if (!noteData.noteTitle || !noteData.noteText) {
          setStatusMessage("Error", "Note title and text are required!");
          return;
       }
-      await saveNoteInfo(noteData);
+      await saveNoteInfo(noteData, noteform);
       return;
    });
 }
@@ -82,12 +83,29 @@ function getNoteInputs() {
    };
 }
 
-async function saveNoteInfo(noteData) {
+function clearNoteForm() {
+   const noteTitle = document.getElementById("input_note_title");
+   const noteText = document.getElementById("input_note_text");
+
+   if (noteTitle) {
+      noteTitle.value = "";
+   }
+
+   if (noteText) {
+      noteText.value = "";
+   }
+}
+
+async function saveNoteInfo(noteData, noteform) {
    const saveNoteResponse = await window.electronAPI.recordNote(noteData);
-   setStatusMessage("Info", saveNoteResponse.message);
    if (saveNoteResponse.success) {
-      console.log("Note added successfully!");
-      console.log(saveNoteResponse.success, saveNoteResponse.message);
+      setStatusMessage("success", saveNoteResponse.message);
+      clearNoteForm();
+      setTimeout(() => {
+         noteform.hide();
+      }, 1000);
+   } else {
+      setStatusMessage("Error", saveNoteResponse.message);
    }
 }
 
