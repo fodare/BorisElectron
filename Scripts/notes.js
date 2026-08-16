@@ -40,10 +40,22 @@ async function setupNoteInteractions() {
    searchText.addEventListener("input", async () => {
       const isEmpty = searchText.value.trim() === "";
       toggleSearchButton(!isEmpty);
+
       if (isEmpty) {
-         // Todo: Refresh the notes
+         await readNotes();
+      }
+   });
+
+   searchText.addEventListener("keydown", async (event) => {
+      if (event.key !== "Escape") {
          return;
       }
+
+      event.preventDefault();
+      searchText.value = "";
+      toggleSearchButton(false);
+      await readNotes();
+      searchText.blur();
    });
 
    searchBtn.addEventListener("click", async (event) => {
@@ -63,11 +75,13 @@ async function setupNoteInteractions() {
          return;
       }
 
-      renderNotes(searchResponse.data);
-
       if (searchResponse.data.length === 0) {
          setStatusMessage("Info", "No notes found.");
+         await readNotes();
+         return;
       }
+
+      renderNotes(searchResponse.data);
    });
 
    addNoteBtn?.addEventListener("click", async (event) => {
