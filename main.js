@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
+import crypto from "crypto";
 import {
    masterPasswordExist,
    encryptValidationToken,
@@ -583,13 +584,19 @@ ipcMain.handle("record-notes", async (event, { noteData }) => {
       };
    }
 
-   const noteInfo = JSON.stringify(noteData);
+   const noteInfo = {
+      noteId: crypto.randomUUID(),
+      noteTitle: noteData.noteTitle,
+      noteText: noteData.noteText,
+   };
+
+   const noteJson = JSON.stringify(noteInfo);
    let encryptionKey = deriveKeyFromMasterpassword(
       sessionMasterPassword,
       sessionKey,
    );
 
-   let encryptedData = encryptContent(noteInfo, encryptionKey.data);
+   let encryptedData = encryptContent(noteJson, encryptionKey.data);
    if (!encryptedData.success) {
       return {
          sucess: false,
