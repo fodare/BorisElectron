@@ -48,8 +48,26 @@ async function setupNoteInteractions() {
 
    searchBtn.addEventListener("click", async (event) => {
       event.preventDefault();
-      // Todo: handleNoteSearch()
-      setStatusMessage("info", "Search button search");
+
+      const searchValue = searchText.value.trim();
+
+      if (!searchValue) {
+         await readNotes();
+         return;
+      }
+
+      const searchResponse = await window.electronAPI.searchNotes(searchValue);
+
+      if (!searchResponse.success) {
+         setStatusMessage("Error", searchResponse.message);
+         return;
+      }
+
+      renderNotes(searchResponse.data);
+
+      if (searchResponse.data.length === 0) {
+         setStatusMessage("Info", "No notes found.");
+      }
    });
 
    addNoteBtn?.addEventListener("click", async (event) => {
@@ -72,6 +90,24 @@ async function setupNoteInteractions() {
          return;
       }
       await saveNoteInfo(noteData, noteform);
+   });
+
+   document.addEventListener("keydown", (event) => {
+      if (event.key !== "Delete") {
+         return;
+      }
+
+      const selectedNote = document.querySelector(".note-item.selected");
+
+      if (!selectedNote) {
+         return;
+      }
+
+      event.preventDefault();
+      const noteId = selectedNote.dataset.noteId;
+      setTimeout(() => {
+         deleteNote(noteId);
+      }, 0);
    });
 }
 
@@ -166,8 +202,8 @@ function createNoteWidget(note, index) {
 
    item.classList.add("accordion-item", "note-item");
 
-   // Store the persistent note ID on the widget
    item.dataset.noteId = note.noteId;
+   item.tabIndex = 0;
 
    const headingId = `noteHeading${index}`;
    const collapseId = `noteCollapse${index}`;
@@ -201,6 +237,16 @@ function createNoteWidget(note, index) {
       noteBody.textContent = note.noteText ?? "";
    }
 
+   // Select this note when clicked
+   item.addEventListener("click", () => {
+      document.querySelectorAll(".note-item.selected").forEach((selected) => {
+         selected.classList.remove("selected");
+      });
+
+      item.classList.add("selected");
+      item.focus();
+   });
+
    return item;
 }
 
@@ -208,6 +254,32 @@ function escapeHtml(text) {
    const div = document.createElement("div");
    div.textContent = text ?? "";
    return div.innerHTML;
+}
+
+async function deleteNote(noteId) {
+   if (!noteId) {
+      setStatusMessage("Error", "Unable to determine note ID.");
+      return;
+   }
+
+   const confirmed = await showConfirmModal(
+      "Are you sure you want to delete this note?",
+   );
+
+   if (!confirmed) {
+      return;
+   }
+
+   const deleteResponse = await window.electronAPI.deleteNote(noteId);
+
+   if (!deleteResponse.success) {
+      setStatusMessage("Error", deleteResponse.message);
+      return;
+   }
+
+   setStatusMessage("success", deleteResponse.message);
+
+   await readNotes();
 }
 
 export { setupNoteInteractions };
