@@ -35,31 +35,32 @@ async function handleRegister() {
          const confirmOverwrite = await showConfirmModal(
             `A master-password is already set.\n\n` +
                `Creating a new one will make any previously saved data permanently inaccessible.\n\n` +
-               `Proceed anyway?`
+               `Proceed anyway?`,
          );
 
          if (!confirmOverwrite) {
-            setStatusMessage("Info", "Registration cancelled. Existing data remains safe."
+            setStatusMessage(
+               "Info",
+               "Registration cancelled. Existing data remains safe.",
             );
             return;
          }
       }
 
-      const registrationStatus = await window.electronAPI.createMasterPassword(
-         passwordInput
-      );
+      const registrationStatus =
+         await window.electronAPI.createMasterPassword(passwordInput);
 
       if (!registrationStatus.success) {
-         setStatusMessage("Error",registrationStatus.message);
+         setStatusMessage("Error", registrationStatus.message);
          return;
       }
 
-      setStatusMessage("Info",registrationStatus.message);
+      setStatusMessage("Info", registrationStatus.message);
       setTimeout(() => {
          window.electronAPI.navigateTo("login.html");
       }, 1500);
    } catch (error) {
-      setStatusMessage("Error",`Error registering. ${error.message}`);
+      setStatusMessage("Error", `Error registering. ${error.message}`);
    }
 }
 
