@@ -19,6 +19,8 @@ import {
    deleteTransactionFromFile,
    readNotesFromFile,
    writeNoteToFile,
+   searchNotesByTitle,
+   deleteNoteFromFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
 import { json } from "stream/consumers";
@@ -612,4 +614,27 @@ ipcMain.handle("record-notes", async (event, { noteData }) => {
       return { success: false, message: isNoteRecorded.message };
    }
 });
+
+ipcMain.handle("search-notes", (event, searchTitle) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error searching notes. Master password not in session!",
+      };
+   }
+
+   return searchNotesByTitle(searchTitle, sessionMasterPassword, sessionKey);
+});
+
+ipcMain.handle("delete-note", (event, noteId) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error deleting note. Master password not in session!",
+      };
+   }
+
+   return deleteNoteFromFile(noteId, sessionMasterPassword, sessionKey);
+});
+
 // #endregion
