@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
+import crypto from "crypto";
 import {
    masterPasswordExist,
    encryptValidationToken,
@@ -16,8 +17,14 @@ import {
    writeTransactionToFile,
    readTransactionsFromFile,
    deleteTransactionFromFile,
+   readNotesFromFile,
+   writeNoteToFile,
+   searchNotesByTitle,
+   deleteNoteFromFile,
+   updateNoteContentInFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
+import { json } from "stream/consumers";
 
 let sessionMasterPassword = null;
 let sessionKey = null;
@@ -125,7 +132,7 @@ ipcMain.handle("verify-master-password", (event, { passwordInput }) => {
          passwordInput,
          encrypted.salt,
          encrypted.iv,
-         encrypted.data
+         encrypted.data,
       );
 
       if (valid) {
@@ -187,7 +194,7 @@ ipcMain.handle(
          accountPassword,
          accountUrl,
          accountNotes,
-      }
+      },
    ) => {
       if (!sessionMasterPassword || !sessionKey) {
          return {
@@ -206,7 +213,7 @@ ipcMain.handle(
 
       let encryptionKey = deriveKeyFromMasterpassword(
          sessionMasterPassword,
-         sessionKey
+         sessionKey,
       );
 
       let encryptedData = encryptContent(accountInfo, encryptionKey.data);
@@ -226,7 +233,7 @@ ipcMain.handle(
       } else {
          return { success: false, message: isAccountSaved.message };
       }
-   }
+   },
 );
 
 ipcMain.handle("read-saved-accounts", (event) => {
@@ -240,7 +247,7 @@ ipcMain.handle("read-saved-accounts", (event) => {
    const savedAccounts = readAccountFromFile();
    const derivedKey = deriveKeyFromMasterpassword(
       sessionMasterPassword,
-      sessionKey
+      sessionKey,
    );
 
    if (!savedAccounts.success && savedAccounts.data.length === 0) {
@@ -262,7 +269,7 @@ ipcMain.handle("read-saved-accounts", (event) => {
          const result = decryptContent(
             account.iv,
             account.data,
-            derivedKey.data
+            derivedKey.data,
          );
          if (result.success) {
             return JSON.parse(result.data);
@@ -280,7 +287,7 @@ ipcMain.handle("read-saved-accounts", (event) => {
 ipcMain.on("account-added", () => {
    const allWindows = BrowserWindow.getAllWindows();
    const credentialsWin = allWindows.find((win) =>
-      win.webContents.getURL().includes("credentials.html")
+      win.webContents.getURL().includes("credentials.html"),
    );
 
    if (credentialsWin) {
@@ -319,7 +326,7 @@ ipcMain.on("render-update-window", (event, accountData) => {
    });
 
    updateAccountWindow.loadFile(
-      path.join(APP_DIR, "/Pages/updateAccount.html")
+      path.join(APP_DIR, "/Pages/updateAccount.html"),
    );
    //updateAccountWindow.webContents.openDevTools();
 
@@ -342,19 +349,19 @@ ipcMain.handle(
          oldAccountName,
          updatedAccount,
          sessionMasterPassword,
-         sessionKey
+         sessionKey,
       );
 
       if (result.success) {
          const credentialsWin = BrowserWindow.getAllWindows().find((win) =>
-            win.webContents.getURL().includes("credentials.html")
+            win.webContents.getURL().includes("credentials.html"),
          );
          if (credentialsWin) {
             credentialsWin.webContents.send("refresh-accounts");
          }
       }
       return result;
-   }
+   },
 );
 
 ipcMain.handle("delete-account", (event, accountName) => {
@@ -368,7 +375,7 @@ ipcMain.handle("delete-account", (event, accountName) => {
    const result = deleteAccountFromFile(
       accountName,
       sessionMasterPassword,
-      sessionKey
+      sessionKey,
    );
 
    if (!result.success) {
@@ -407,7 +414,7 @@ ipcMain.on("render-transaction-prompt", async () => {
    });
 
    transactionPromptWindow.loadFile(
-      path.join(APP_DIR, "/Pages/addTransaction.html")
+      path.join(APP_DIR, "/Pages/addTransaction.html"),
    );
    //accountPromptWindow.webContents.openDevTools();
    transactionPromptWindow.on("closed", () => {
@@ -434,7 +441,7 @@ ipcMain.handle("record-transaction", async (event, { transactionData }) => {
    const transactionInfo = JSON.stringify(transactionData);
    let encryptionKey = deriveKeyFromMasterpassword(
       sessionMasterPassword,
-      sessionKey
+      sessionKey,
    );
    let encryptedData = encryptContent(transactionInfo, encryptionKey.data);
 
@@ -465,7 +472,7 @@ ipcMain.handle("read-saved-transactions", (event) => {
    const savedTransactions = readTransactionsFromFile();
    const derivedKey = deriveKeyFromMasterpassword(
       sessionMasterPassword,
-      sessionKey
+      sessionKey,
    );
 
    if (!savedTransactions.success || !derivedKey.success) {
@@ -480,7 +487,7 @@ ipcMain.handle("read-saved-transactions", (event) => {
          const result = decryptContent(
             transaction.iv,
             transaction.data,
-            derivedKey.data
+            derivedKey.data,
          );
          if (result.success) {
             return JSON.parse(result.data);
@@ -498,7 +505,7 @@ ipcMain.handle("read-saved-transactions", (event) => {
 ipcMain.on("transaction-added", () => {
    const allWindows = BrowserWindow.getAllWindows();
    const transactionWindow = allWindows.find((window) =>
-      window.webContents.getURL().includes("finances.html")
+      window.webContents.getURL().includes("finances.html"),
    );
 
    if (transactionWindow) {
@@ -517,7 +524,7 @@ ipcMain.handle("delete-transaction", (event, tranactionID) => {
    const result = deleteTransactionFromFile(
       tranactionID,
       sessionMasterPassword,
-      sessionKey
+      sessionKey,
    );
 
    if (!result.success) {
@@ -530,6 +537,135 @@ ipcMain.handle("delete-transaction", (event, tranactionID) => {
    }
 
    return result;
+});
+
+// #endregion
+
+// #region Notes listeners
+ipcMain.handle("read-saved-notes", (event) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error reading notes. Master password not in session!",
+      };
+   }
+
+   const savedNotes = readNotesFromFile();
+   const derivedKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey,
+   );
+
+   if (!savedNotes.success || !derivedKey.success) {
+      return {
+         success: false,
+         message: "Failed to read or decrypt transactions.",
+      };
+   }
+
+   const decryptedNote = savedNotes.data
+      .map((note) => {
+         const result = decryptContent(note.iv, note.data, derivedKey.data);
+         if (result.success) {
+            return JSON.parse(result.data);
+         }
+         return null;
+      })
+      .filter(Boolean);
+
+   return {
+      success: true,
+      data: decryptedNote,
+   };
+});
+
+ipcMain.handle("record-notes", async (event, { noteData }) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Can not persist note. Master password not in session!",
+      };
+   }
+
+   const noteInfo = {
+      noteId: crypto.randomUUID(),
+      noteTitle: noteData.noteTitle,
+      noteText: noteData.noteText,
+   };
+
+   const noteJson = JSON.stringify(noteInfo);
+   let encryptionKey = deriveKeyFromMasterpassword(
+      sessionMasterPassword,
+      sessionKey,
+   );
+
+   let encryptedData = encryptContent(noteJson, encryptionKey.data);
+   if (!encryptedData.success) {
+      return {
+         sucess: false,
+         message: "Error encrypting note. Please try again.",
+      };
+   }
+
+   const parsedContent = JSON.parse(encryptedData.encryptedContent);
+   const isNoteRecorded = writeNoteToFile(parsedContent);
+   if (isNoteRecorded.success) {
+      return { success: true, message: isNoteRecorded.message };
+   } else {
+      return { success: false, message: isNoteRecorded.message };
+   }
+});
+
+ipcMain.handle("search-notes", (event, searchTitle) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error searching notes. Master password not in session!",
+      };
+   }
+
+   return searchNotesByTitle(searchTitle, sessionMasterPassword, sessionKey);
+});
+
+ipcMain.handle("delete-note", (event, noteId) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error deleting note. Master password not in session!",
+      };
+   }
+
+   return deleteNoteFromFile(noteId, sessionMasterPassword, sessionKey);
+});
+
+ipcMain.handle("update-note-content", (event, { noteId, noteText }) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error updating note. Master password not in session!",
+      };
+   }
+
+   if (!noteId) {
+      return {
+         success: false,
+         message: "Note ID is required.",
+      };
+   }
+
+   if (typeof noteText !== "string" || !noteText.trim()) {
+      return {
+         success: false,
+         message: "Note content cannot be empty.",
+      };
+   }
+
+   return updateNoteContentInFile(
+      noteId,
+      noteText,
+      sessionMasterPassword,
+      sessionKey,
+   );
 });
 
 // #endregion

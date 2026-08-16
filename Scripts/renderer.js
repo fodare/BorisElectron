@@ -15,6 +15,8 @@ import {
    setupAddTransactionInteractions,
 } from "./finances.js";
 
+import { setupNoteInteractions } from "./notes.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
    const path = window.location.pathname;
    const masterPasswordExist = await isMasterPasswordExist();
@@ -89,5 +91,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    if (path.endsWith("addTransaction.html")) {
       await setupAddTransactionInteractions();
+   }
+
+   if (path.endsWith("notes.html")) {
+      await setupNoteInteractions();
    }
 });

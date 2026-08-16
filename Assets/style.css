@@ -292,6 +292,77 @@ body{
    overflow-y: auto;
 }
 
+/* Notes styling */
+.notesContents {
+   flex: 1;
+   min-height: 0;
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+}
+
+.note_tools,
+.noteForm {
+   flex-shrink: 0;
+}
+
+#notesList {
+   flex: 1;
+   min-height: 0;
+   margin-top: 1.5rem;
+   padding-right: 8px;
+   overflow-y: auto;
+}
+
+#notesAccordion {
+   display: flex;
+   flex-direction: column;
+   gap: 0.75rem;
+   padding-bottom: 1rem;
+}
+
+.note-item {
+   margin: 0;
+   flex-shrink: 0;
+}
+
+.note-body {
+   max-height: 300px;
+   overflow-y: auto;
+   white-space: pre-wrap;
+   overflow-wrap: break-word;
+}
+
+.note-item .accordion-button::after {
+   background-image: none;
+   content: "⌄";
+   font-size: 1.25rem;
+   width: auto;
+   height: auto;
+   line-height: 1;
+}
+
+.note-item .accordion-button:not(.collapsed)::after {
+   content: "⌃";
+}
+
+.note-body-container {
+   width: 100%;
+}
+
+.note-edit-text {
+   width: 100%;
+   resize: vertical;
+   cursor: text;
+   pointer-events: auto;
+}
+
+.note-actions {
+   display: flex;
+   gap: 0.5rem;
+}
+
+
 /* Media styling */
 @media (min-width: 768px) {
    .nav-container {

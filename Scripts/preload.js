@@ -35,7 +35,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       accountUserName,
       accountPassword,
       accountUrl,
-      accountNotes
+      accountNotes,
    ) =>
       ipcRenderer.invoke("save-account", {
          accountName,
@@ -79,5 +79,19 @@ contextBridge.exposeInMainWorld("electronAPI", {
    deletetransaction: (tranactionID) =>
       ipcRenderer.invoke("delete-transaction", tranactionID),
 
+   // #endregion
+
+   // #region Notes listeners
+   readSavedNotes: () => ipcRenderer.invoke("read-saved-notes"),
+   recordNote: (noteData) => ipcRenderer.invoke("record-notes", { noteData }),
+   searchNotes: (searchTitle) =>
+      ipcRenderer.invoke("search-notes", searchTitle),
+
+   deleteNote: (noteId) => ipcRenderer.invoke("delete-note", noteId),
+   updateNoteContent: (noteId, noteText) =>
+      ipcRenderer.invoke("update-note-content", {
+         noteId,
+         noteText,
+      }),
    // #endregion
 });

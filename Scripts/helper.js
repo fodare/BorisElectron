@@ -19,7 +19,7 @@ function setStatusMessage(notificationType, message) {
             "top-0",
             "end-0",
             "p-3",
-            "toast-container"
+            "toast-container",
          );
          document.body.appendChild(container);
          return container;
@@ -73,7 +73,7 @@ async function injectNavbar() {
          });
       });
    } catch (err) {
-      "Error", setStatusMessage(`Failed to load navbar: ${err.message}`);
+      ("Error", setStatusMessage(`Failed to load navbar: ${err.message}`));
    }
 }
 
@@ -125,7 +125,7 @@ function addTableInteractions(tableBodyId) {
                .writeText(copiedText)
                .then(() => setStatusMessage("Info", "Copied!"))
                .catch((err) =>
-                  setStatusMessage("Error", "Clipboard error:", err)
+                  setStatusMessage("Error", "Clipboard error:", err),
                );
             event.preventDefault();
          }
@@ -135,14 +135,13 @@ function addTableInteractions(tableBodyId) {
          event.preventDefault();
          if (selectedRow) {
             const confirmDeletion = await showConfirmModal(
-               "Are you sure you want to delete this entry?. Please note action is not reversible!"
+               "Are you sure you want to delete this entry?. Please note action is not reversible!",
             );
             if (confirmDeletion) {
                const cells = selectedRow.querySelectorAll("td");
                const accountName = cells[0]?.textContent;
-               const delettionResult = await window.electronAPI.deleteAccount(
-                  accountName
-               );
+               const delettionResult =
+                  await window.electronAPI.deleteAccount(accountName);
 
                setStatusMessage("Info", delettionResult.message);
                if (delettionResult.success) {
@@ -156,7 +155,7 @@ function addTableInteractions(tableBodyId) {
 
 async function monitorAppInactivity(
    inactivityLimit = 300,
-   throttleDuration = 500
+   throttleDuration = 500,
 ) {
    let lastActvity = Date.now();
    let throttleTimeout = null;
@@ -172,7 +171,7 @@ async function monitorAppInactivity(
    ["mousemove", "keydown", "mousedown", "scroll", "touchstart"].forEach(
       (event) => {
          window.addEventListener(event, resetTimer);
-      }
+      },
    );
 
    setInterval(() => {

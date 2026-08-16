@@ -12,6 +12,9 @@ test.describe("End-to-end Test", () => {
    const testAccountName = "Test Account 1";
    const InvalidAccountName = "Unknown Test 1";
    const updatedAccountName = "Test Account Updated";
+   const testNoteTitle = "Test Note";
+   const testNoteContent = "This is a test note.";
+   const updatedNoteContent = "This is the updated note content.";
 
    //#region Helpers
 
@@ -23,14 +26,14 @@ test.describe("End-to-end Test", () => {
          case "win32":
             return path.join(
                process.env.APPDATA || path.join(homeDir, "AppData", "Roaming"),
-               appName
+               appName,
             );
          case "darwin":
             return path.join(
                homeDir,
                "Library",
                "Application Support",
-               appName
+               appName,
             );
          case "linux":
          default:
@@ -44,6 +47,7 @@ test.describe("End-to-end Test", () => {
          "password.enc",
          "accounts.enc",
          "transactions.enc",
+         "notes.enc",
       ];
 
       for (const file of filesToDelete) {
@@ -68,7 +72,7 @@ test.describe("End-to-end Test", () => {
    const createAccount = async function createNewAccount(
       name = testAccountName,
       appWindow = window,
-      electronApp = electronApp
+      electronApp = electronApp,
    ) {
       await appWindow.locator("#addAccountBtn").click();
       const accountWindow = await electronApp.waitForEvent("window");
@@ -80,9 +84,35 @@ test.describe("End-to-end Test", () => {
       expect(usernameInputCount).toBeGreaterThan(0);
       await accountWindow.locator("#addAccountBtn").click();
       await expect(accountWindow.locator(".toast-body")).toHaveText(
-         "Wrote account to file!"
+         "Wrote account to file!",
       );
       await accountWindow.close();
+   };
+
+   const goToNotes = async (win) => {
+      await win.locator("#noteLink").click();
+
+      await expect(win).toHaveTitle("Boris - Notes");
+      await expect(win.locator("#addNote")).toBeVisible();
+   };
+
+   const createNote = async (
+      title = testNoteTitle,
+      content = testNoteContent,
+      appWindow = window,
+   ) => {
+      await appWindow.locator("#addNote").click();
+
+      await expect(appWindow.locator("#noteFormCollapse")).toBeVisible();
+
+      await appWindow.locator("#input_note_title").fill(title);
+      await appWindow.locator("#input_note_text").fill(content);
+
+      await appWindow.locator("#save_notet_btn").click();
+
+      await expect(
+         appWindow.locator(".note-item").filter({ hasText: title }),
+      ).toBeVisible();
    };
 
    //#endregion
@@ -225,7 +255,7 @@ test.describe("End-to-end Test", () => {
       await window.locator("#searchBtn").click();
       const notificationText = window.locator(`text=${InvalidAccountName}`);
       await expect(notificationText).toHaveText(
-         `There are no account with the name ${InvalidAccountName}!`
+         `There are no account with the name ${InvalidAccountName}!`,
       );
    });
 
@@ -237,7 +267,7 @@ test.describe("End-to-end Test", () => {
       await accountRow.dblclick();
       const editWindow = await electronApp.waitForEvent("window");
       await expect(editWindow.locator("#accountName")).toHaveValue(
-         testAccountName
+         testAccountName,
       );
       await editWindow.close();
    });
@@ -273,6 +303,110 @@ test.describe("End-to-end Test", () => {
       await window.keyboard.press("Delete");
       await window.locator("#confirmYes").click();
       await expect(accountRow).not.toBeVisible();
+   });
+
+   test("should allow creating a new note", async () => {
+      await register(window);
+      await login(window);
+      await goToNotes(window);
+
+      await createNote();
+
+      const note = window
+         .locator(".note-item")
+         .filter({ hasText: testNoteTitle });
+
+      await expect(note).toBeVisible();
+      await expect(note).toContainText(testNoteTitle);
+      await expect(note).toContainText(testNoteContent);
+   });
+
+   test("should display a saved note", async () => {
+      await register(window);
+      await login(window);
+      await goToNotes(window);
+
+      await createNote();
+
+      await window.reload();
+      await expect(window).toHaveTitle("Boris - Notes");
+      const note = window
+         .locator(".note-item")
+         .filter({ hasText: testNoteTitle });
+
+      await expect(note).toBeVisible();
+      await note.locator(".accordion-button").click();
+      await expect(note.locator(".note-body")).toHaveText(testNoteContent);
+   });
+
+   test("should allow updating a note", async () => {
+      await register(window);
+      await login(window);
+      await goToNotes(window);
+
+      await createNote();
+
+      const note = window
+         .locator(".note-item")
+         .filter({ hasText: testNoteTitle });
+
+      await note.locator(".accordion-button").click();
+
+      await note.locator(".edit-note-btn").click();
+
+      const textarea = note.locator(".note-edit-text");
+
+      await expect(textarea).toBeVisible();
+      await expect(textarea).toHaveValue(testNoteContent);
+      await textarea.fill(updatedNoteContent);
+      await note.locator(".save-note-content-btn").click();
+      await expect(note.locator(".note-body")).toHaveText(updatedNoteContent);
+
+      await expect(note.locator(".note-edit")).toBeHidden();
+      await expect(note.locator(".note-display")).toBeVisible();
+   });
+
+   test("should allow deleting a note", async () => {
+      await register(window);
+      await login(window);
+
+      await window.locator("#noteLink").click();
+
+      await expect(window).toHaveTitle("Boris - Notes");
+      await expect(window.locator("#addNote")).toBeVisible();
+
+      const testNoteTitle = "Test Note";
+      const testNoteContent = "This note will be deleted.";
+      await window.locator("#addNote").click();
+
+      await expect(window.locator("#noteFormCollapse")).toBeVisible();
+
+      await window.locator("#input_note_title").fill(testNoteTitle);
+      await window.locator("#input_note_text").fill(testNoteContent);
+
+      await window.locator("#save_notet_btn").click();
+
+      const note = window.locator(".note-item").filter({
+         hasText: testNoteTitle,
+      });
+
+      await expect(note).toBeVisible();
+
+      await note.locator(".accordion-button").click();
+
+      const deleteButton = note.locator(".delete-note-btn");
+
+      await expect(deleteButton).toBeVisible();
+      await deleteButton.click();
+
+      const confirmModal = window.locator("#confirmModal");
+      const confirmYes = window.locator("#confirmYes");
+
+      await expect(confirmModal).toBeVisible();
+      await expect(confirmYes).toBeVisible();
+
+      await confirmYes.click();
+      await expect(note).not.toBeVisible();
    });
 
    //#endregion

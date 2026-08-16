@@ -2,11 +2,13 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { app } from "electron";
+import { error } from "console";
 
 let APP_DIR = app.getPath("userData");
 let MASTER_PASS_FILE = path.join(APP_DIR, "/Data/password.enc");
 let ACCOUNTS_FILE = path.join(APP_DIR, "/Data/accounts.enc");
 let TRANSACTIONS_FILE = path.join(APP_DIR, "/Data/transactions.enc");
+let NOTES_FILE = path.join(APP_DIR, "/Data/notes.enc");
 
 // ---------- Master-Password control ---------- //
 
@@ -47,12 +49,12 @@ function isPasswordValid(userPassword, salt, iv, data) {
          Buffer.from(salt, "hex"),
          100_000,
          32,
-         "sha256"
+         "sha256",
       );
       const decipher = crypto.createDecipheriv(
          "aes-256-cbc",
          key,
-         Buffer.from(iv, "hex")
+         Buffer.from(iv, "hex"),
       );
 
       let decrypted = decipher.update(data, "hex", "utf8");
@@ -83,7 +85,7 @@ function deriveKeyFromMasterpassword(masterPassword, saltHex) {
          Buffer.from(saltHex, "hex"),
          100_000,
          32,
-         "sha256"
+         "sha256",
       );
       return { success: true, data: key };
    } catch (error) {
@@ -120,7 +122,7 @@ function decryptContent(iv, data, key) {
       const decipher = crypto.createDecipheriv(
          "aes-256-cbc",
          key,
-         Buffer.from(iv, "hex")
+         Buffer.from(iv, "hex"),
       );
 
       let decryptedContent = decipher.update(data, "hex", "utf8");
@@ -150,7 +152,7 @@ function writeAccountToFile(encryptedAccount) {
       fs.writeFileSync(
          ACCOUNTS_FILE,
          JSON.stringify(currentData, null, 3),
-         "utf8"
+         "utf8",
       );
 
       return {
@@ -194,7 +196,7 @@ function updateAccountInFile(
    oldAccountName,
    updatedAccount,
    masterPassword,
-   saltHex
+   saltHex,
 ) {
    const readResult = readAccountFromFile();
 
@@ -212,7 +214,7 @@ function updateAccountInFile(
          const decrypted = decryptContent(
             account.iv,
             account.data,
-            keyResult.data
+            keyResult.data,
          );
          if (!decrypted.success) return null;
 
@@ -229,7 +231,7 @@ function updateAccountInFile(
       .filter(Boolean);
 
    const accountNameExist = decryptedAccounts.some(
-      (acc) => acc.name === updatedAccount.name && acc.name !== oldAccountName
+      (acc) => acc.name === updatedAccount.name && acc.name !== oldAccountName,
    );
 
    if (accountNameExist) {
@@ -240,7 +242,7 @@ function updateAccountInFile(
    }
 
    const updatedList = decryptedAccounts.map((account) =>
-      account.name === oldAccountName ? updatedAccount : account
+      account.name === oldAccountName ? updatedAccount : account,
    );
 
    const encryptedAccounts = updatedList.map((account) => {
@@ -253,7 +255,7 @@ function updateAccountInFile(
       fs.writeFileSync(
          path.join(APP_DIR, "/Data/accounts.enc"),
          JSON.stringify(encryptedAccounts, null, 3),
-         "utf8"
+         "utf8",
       );
       return { success: true, message: "Account updated successfully." };
    } catch (error) {
@@ -302,7 +304,7 @@ function deleteAccountFromFile(accountName, masterPassword, saltHex) {
       fs.writeFileSync(
          ACCOUNTS_FILE,
          JSON.stringify(encryptedAccounts, null, 3),
-         "utf8"
+         "utf8",
       );
       return { success: true, message: "Account deleted successfully." };
    } catch (err) {
@@ -324,7 +326,7 @@ function writeTransactionToFile(encryptedTransaction) {
       fs.writeFileSync(
          TRANSACTIONS_FILE,
          JSON.stringify(currentData, null, 3),
-         "utf8"
+         "utf8",
       );
 
       return {
@@ -391,7 +393,7 @@ function deleteTransactionFromFile(tranactionID, masterPassword, saltHex) {
       .filter(Boolean);
 
    const filtered = decryptedTransactions.filter(
-      (transaction) => transaction.transactionId !== tranactionID
+      (transaction) => transaction.transactionId !== tranactionID,
    );
 
    if (filtered.length === decryptedTransactions.length) {
@@ -408,11 +410,279 @@ function deleteTransactionFromFile(tranactionID, masterPassword, saltHex) {
       fs.writeFileSync(
          TRANSACTIONS_FILE,
          JSON.stringify(encryptedTransactions, null, 3),
-         "utf8"
+         "utf8",
       );
       return { success: true, message: "Transactions deleted successfully." };
    } catch (err) {
       return { success: false, message: "Failed to write file." };
+   }
+}
+
+function readNotesFromFile() {
+   try {
+      if (!fs.existsSync(NOTES_FILE)) {
+         return { success: false, data: [] };
+      }
+
+      const fileContent = fs.readFileSync(NOTES_FILE, "utf-8");
+      const data = JSON.parse(fileContent);
+
+      if (!Array.isArray(data)) {
+         return {
+            success: false,
+            error: "Malformed notes file. Expected and array of notes.",
+         };
+      }
+
+      return { success: true, data };
+   } catch (error) {
+      return {
+         success: false,
+         error: error,
+      };
+   }
+}
+
+function writeNoteToFile(encryptedNote) {
+   try {
+      fs.mkdirSync(path.dirname(NOTES_FILE), { recursive: true });
+      let currentData = [];
+
+      if (fs.existsSync(NOTES_FILE)) {
+         const rawData = fs.readFileSync(NOTES_FILE, "utf-8");
+         currentData = JSON.parse(rawData);
+      }
+      currentData.push(encryptedNote);
+      fs.writeFileSync(
+         NOTES_FILE,
+         JSON.stringify(currentData, null, 3),
+         "utf-8",
+      );
+
+      return {
+         success: true,
+         message: "Wrote note to file!",
+      };
+   } catch (error) {
+      return {
+         success: false,
+         message: error,
+      };
+   }
+}
+
+function searchNotesByTitle(searchTitle, masterPassword, saltHex) {
+   const readResult = readNotesFromFile();
+
+   if (!readResult.success) {
+      return {
+         success: false,
+         message: "Failed to read notes from file.",
+      };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+
+   if (!keyResult.success) {
+      return {
+         success: false,
+         message: "Failed to derive encryption key.",
+      };
+   }
+
+   const searchValue = searchTitle.trim().toLowerCase();
+
+   if (!searchValue) {
+      return {
+         success: true,
+         data: [],
+      };
+   }
+
+   const decryptedNotes = readResult.data
+      .map((entry) => {
+         const decrypted = decryptContent(entry.iv, entry.data, keyResult.data);
+
+         if (!decrypted.success) {
+            return null;
+         }
+
+         try {
+            return JSON.parse(decrypted.data);
+         } catch {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const matchingNotes = decryptedNotes.filter(
+      (note) =>
+         typeof note.noteTitle === "string" &&
+         note.noteTitle.toLowerCase().includes(searchValue),
+   );
+
+   return {
+      success: true,
+      data: matchingNotes,
+   };
+}
+
+function deleteNoteFromFile(noteId, masterPassword, saltHex) {
+   const readResult = readNotesFromFile();
+
+   if (!readResult.success) {
+      return {
+         success: false,
+         message: "Failed to read notes from file.",
+      };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+
+   if (!keyResult.success) {
+      return {
+         success: false,
+         message: "Failed to derive encryption key.",
+      };
+   }
+
+   const decryptedNotes = readResult.data
+      .map((entry) => {
+         const decrypted = decryptContent(entry.iv, entry.data, keyResult.data);
+
+         if (!decrypted.success) {
+            return null;
+         }
+
+         try {
+            return JSON.parse(decrypted.data);
+         } catch {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const filteredNotes = decryptedNotes.filter(
+      (note) => note.noteId !== noteId,
+   );
+
+   if (filteredNotes.length === decryptedNotes.length) {
+      return {
+         success: false,
+         message: "Note not found.",
+      };
+   }
+
+   const encryptedNotes = filteredNotes.map((note) => {
+      const encrypted = encryptContent(JSON.stringify(note), keyResult.data);
+
+      if (!encrypted.success) {
+         throw new Error("Failed to re-encrypt note.");
+      }
+
+      return JSON.parse(encrypted.encryptedContent);
+   });
+
+   try {
+      fs.writeFileSync(
+         NOTES_FILE,
+         JSON.stringify(encryptedNotes, null, 3),
+         "utf8",
+      );
+
+      return {
+         success: true,
+         message: "Note deleted successfully.",
+      };
+   } catch (error) {
+      return {
+         success: false,
+         message: "Failed to write updated notes file.",
+      };
+   }
+}
+
+function updateNoteContentInFile(noteId, noteText, masterPassword, saltHex) {
+   const readResult = readNotesFromFile();
+
+   if (!readResult.success) {
+      return {
+         success: false,
+         message: "Failed to read notes from file.",
+      };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+
+   if (!keyResult.success) {
+      return {
+         success: false,
+         message: "Failed to derive encryption key.",
+      };
+   }
+
+   const decryptedNotes = readResult.data
+      .map((entry) => {
+         const decrypted = decryptContent(entry.iv, entry.data, keyResult.data);
+
+         if (!decrypted.success) {
+            return null;
+         }
+
+         try {
+            return JSON.parse(decrypted.data);
+         } catch {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const noteExists = decryptedNotes.some((note) => note.noteId === noteId);
+
+   if (!noteExists) {
+      return {
+         success: false,
+         message: "Note not found.",
+      };
+   }
+
+   const updatedNotes = decryptedNotes.map((note) => {
+      if (note.noteId !== noteId) {
+         return note;
+      }
+
+      return {
+         ...note,
+         noteText: noteText,
+      };
+   });
+
+   const encryptedNotes = updatedNotes.map((note) => {
+      const encrypted = encryptContent(JSON.stringify(note), keyResult.data);
+
+      if (!encrypted.success) {
+         throw new Error("Failed to re-encrypt note.");
+      }
+
+      return JSON.parse(encrypted.encryptedContent);
+   });
+
+   try {
+      fs.writeFileSync(
+         NOTES_FILE,
+         JSON.stringify(encryptedNotes, null, 3),
+         "utf8",
+      );
+
+      return {
+         success: true,
+         message: "Note updated successfully.",
+      };
+   } catch (error) {
+      return {
+         success: false,
+         message: "Failed to write updated notes file.",
+      };
    }
 }
 
@@ -432,4 +702,9 @@ export {
    writeTransactionToFile,
    readTransactionsFromFile,
    deleteTransactionFromFile,
+   readNotesFromFile,
+   writeNoteToFile,
+   searchNotesByTitle,
+   deleteNoteFromFile,
+   updateNoteContentInFile,
 };

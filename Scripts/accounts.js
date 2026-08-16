@@ -100,7 +100,7 @@ async function setUpAddAccountPageIntractions() {
       if (await accountAlreadyExist(accountName)) {
          setStatusMessage(
             "Error",
-            `An account with the name ${accountName} already exists!`
+            `An account with the name ${accountName} already exists!`,
          );
          return;
       }
@@ -109,7 +109,7 @@ async function setUpAddAccountPageIntractions() {
          accountUserName,
          accountPassword,
          accountUrl,
-         accountNotes
+         accountNotes,
       );
    });
 
@@ -147,7 +147,7 @@ async function setUpAddAccountPageIntractions() {
             accountNote
          ) {
             const confirmEscape = await showConfirmModal(
-               "Are you sure you want to exit window ? All info enterd without saving will be lost!"
+               "Are you sure you want to exit window ? All info enterd without saving will be lost!",
             );
             if (confirmEscape) {
                await window.electronAPI.closeAddAccountWindow();
@@ -166,14 +166,14 @@ async function saveNewAccountInfo(
    accountUserName,
    accountPassword,
    accountUrl,
-   accountNotes
+   accountNotes,
 ) {
    const saveAccountResponse = await window.electronAPI.saveAccount(
       accountName,
       accountUserName,
       accountPassword,
       accountUrl,
-      accountNotes
+      accountNotes,
    );
    setStatusMessage("Info", saveAccountResponse.message);
    if (saveAccountResponse.success) {
@@ -227,7 +227,7 @@ async function handleSearchAccount() {
    }
 
    const searchedAccount = savedAccounts.data.find(
-      (account) => account.name === accountNameInput
+      (account) => account.name === accountNameInput,
    );
 
    if (searchedAccount) {
@@ -235,7 +235,7 @@ async function handleSearchAccount() {
    } else {
       setStatusMessage(
          "Info",
-         `There are no account with the name ${accountNameInput}!`
+         `There are no account with the name ${accountNameInput}!`,
       );
    }
 }
@@ -282,7 +282,7 @@ async function setUpUpdateAccountInteractions() {
             if (!updatedAccountInfo.name) {
                setStatusMessage(
                   "Error",
-                  "Account name can not be null / empty!"
+                  "Account name can not be null / empty!",
                );
                return;
             }
@@ -290,7 +290,7 @@ async function setUpUpdateAccountInteractions() {
             const updateAccountResponse =
                await window.electronAPI.updateAccount(
                   oldAccountName,
-                  updatedAccountInfo
+                  updatedAccountInfo,
                );
 
             setStatusMessage("Info", updateAccountResponse.message);
