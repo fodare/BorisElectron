@@ -27,6 +27,7 @@ async function setupNoteInteractions() {
    }
 
    toggleSearchButton(false);
+   await readNotes();
 
    searchText.addEventListener("focus", () => {
       toggleSearchButton(searchText.value.trim() !== "");
@@ -71,7 +72,6 @@ async function setupNoteInteractions() {
          return;
       }
       await saveNoteInfo(noteData, noteform);
-      return;
    });
 }
 
@@ -101,12 +101,113 @@ async function saveNoteInfo(noteData, noteform) {
    if (saveNoteResponse.success) {
       setStatusMessage("success", saveNoteResponse.message);
       clearNoteForm();
-      setTimeout(() => {
+      setTimeout(async () => {
          noteform.hide();
+         await readNotes();
       }, 1000);
    } else {
       setStatusMessage("Error", saveNoteResponse.message);
    }
+}
+
+async function readNotes() {
+   const notesResponse = await window.electronAPI.readSavedNotes();
+
+   if (!notesResponse.success) {
+      setStatusMessage("Error", notesResponse.message);
+      return;
+   }
+
+   const notes = notesResponse.data || [];
+
+   if (notes.length === 0) {
+      renderNotes([]);
+      setStatusMessage("Info", "No saved notes found.");
+      return;
+   }
+
+   renderNotes(notes);
+}
+
+function renderNotes(notes) {
+   const notesContents = document.querySelector(".notesContents");
+
+   if (!notesContents) {
+      return;
+   }
+
+   let notesList = document.getElementById("notesList");
+
+   if (!notesList) {
+      notesList = document.createElement("div");
+      notesList.id = "notesList";
+      notesContents.appendChild(notesList);
+   }
+
+   notesList.innerHTML = "";
+
+   if (notes.length === 0) {
+      return;
+   }
+
+   const accordion = document.createElement("div");
+   accordion.classList.add("accordion");
+   accordion.id = "notesAccordion";
+
+   notes.forEach((note, index) => {
+      accordion.appendChild(createNoteWidget(note, index));
+   });
+
+   notesList.appendChild(accordion);
+}
+
+function createNoteWidget(note, index) {
+   const item = document.createElement("div");
+
+   item.classList.add("accordion-item", "note-item");
+
+   // Store the persistent note ID on the widget
+   item.dataset.noteId = note.noteId;
+
+   const headingId = `noteHeading${index}`;
+   const collapseId = `noteCollapse${index}`;
+
+   item.innerHTML = `
+      <h2 class="accordion-header" id="${headingId}">
+         <button
+            class="accordion-button collapsed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#${collapseId}"
+            aria-expanded="false"
+            aria-controls="${collapseId}"
+         >
+            ${escapeHtml(note.noteTitle)}
+         </button>
+      </h2>
+
+      <div
+         id="${collapseId}"
+         class="accordion-collapse collapse"
+         aria-labelledby="${headingId}"
+      >
+         <div class="accordion-body note-body"></div>
+      </div>
+   `;
+
+   const noteBody = item.querySelector(".note-body");
+
+   if (noteBody) {
+      noteBody.textContent = note.noteText ?? "";
+   }
+
+   return item;
+}
+
+function escapeHtml(text) {
+   const div = document.createElement("div");
+   div.textContent = text ?? "";
+   return div.innerHTML;
 }
 
 export { setupNoteInteractions };
