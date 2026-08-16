@@ -241,18 +241,202 @@ function createNoteWidget(note, index) {
          class="accordion-collapse collapse"
          aria-labelledby="${headingId}"
       >
-         <div class="accordion-body note-body"></div>
+         <div class="accordion-body note-body-container">
+
+            <!-- Normal note view -->
+            <div class="note-display">
+               <div class="note-body"></div>
+
+               <div class="note-actions mt-3">
+                  <button
+                     type="button"
+                     class="btn btn-sm btn-primary edit-note-btn"
+                  >
+                     Edit
+                  </button>
+
+                  <button
+                     type="button"
+                     class="btn btn-sm btn-danger delete-note-btn"
+                  >
+                     Delete
+                  </button>
+               </div>
+            </div>
+
+            <!-- Note editing view -->
+            <div class="note-edit d-none">
+               <textarea
+                  class="form-control note-edit-text"
+                  rows="8"
+               ></textarea>
+
+               <div class="note-actions mt-3">
+                  <button
+                     type="button"
+                     class="btn btn-sm btn-success save-note-content-btn"
+                  >
+                     Save
+                  </button>
+
+                  <button
+                     type="button"
+                     class="btn btn-sm btn-secondary cancel-note-content-btn"
+                  >
+                     Cancel
+                  </button>
+               </div>
+            </div>
+
+         </div>
       </div>
    `;
 
    const noteBody = item.querySelector(".note-body");
+   const editContainer = item.querySelector(".note-edit");
+   const displayContainer = item.querySelector(".note-display");
+   const editTextarea = item.querySelector(".note-edit-text");
+
+   const editButton = item.querySelector(".edit-note-btn");
+   const deleteButton = item.querySelector(".delete-note-btn");
+   const saveButton = item.querySelector(".save-note-content-btn");
+   const cancelButton = item.querySelector(".cancel-note-content-btn");
+
+   // --------------------------------------------------
+   // Populate note content
+   // --------------------------------------------------
 
    if (noteBody) {
       noteBody.textContent = note.noteText ?? "";
    }
 
-   // Select this note when clicked
-   item.addEventListener("click", () => {
+   if (editTextarea) {
+      editTextarea.value = note.noteText ?? "";
+   }
+
+   // --------------------------------------------------
+   // Edit note
+   // --------------------------------------------------
+
+   editButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      displayContainer.classList.add("d-none");
+      editContainer.classList.remove("d-none");
+
+      requestAnimationFrame(() => {
+         editTextarea.focus();
+
+         // Put cursor at the end of the text
+         editTextarea.setSelectionRange(
+            editTextarea.value.length,
+            editTextarea.value.length,
+         );
+      });
+   });
+
+   // --------------------------------------------------
+   // Delete note
+   // --------------------------------------------------
+
+   deleteButton?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      await deleteNote(note.noteId);
+   });
+
+   // --------------------------------------------------
+   // Prevent textarea interaction from selecting note
+   // --------------------------------------------------
+
+   editTextarea?.addEventListener("click", (event) => {
+      event.stopPropagation();
+   });
+
+   editTextarea?.addEventListener("keydown", (event) => {
+      event.stopPropagation();
+   });
+
+   // --------------------------------------------------
+   // Cancel editing
+   // --------------------------------------------------
+
+   cancelButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Restore original content
+      editTextarea.value = note.noteText ?? "";
+
+      editContainer.classList.add("d-none");
+      displayContainer.classList.remove("d-none");
+   });
+
+   // --------------------------------------------------
+   // Save updated note content
+   // --------------------------------------------------
+
+   saveButton?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const updatedText = editTextarea.value.trim();
+
+      if (!updatedText) {
+         setStatusMessage("Error", "Note content cannot be empty.");
+         return;
+      }
+
+      saveButton.disabled = true;
+      cancelButton.disabled = true;
+
+      try {
+         const updateResponse = await window.electronAPI.updateNoteContent(
+            note.noteId,
+            updatedText,
+         );
+
+         if (!updateResponse.success) {
+            setStatusMessage("Error", updateResponse.message);
+            return;
+         }
+
+         // Update local note object
+         note.noteText = updatedText;
+
+         // Update displayed content
+         noteBody.textContent = updatedText;
+
+         // Keep textarea synchronized
+         editTextarea.value = updatedText;
+
+         // Return to normal view
+         editContainer.classList.add("d-none");
+         displayContainer.classList.remove("d-none");
+
+         setStatusMessage("success", updateResponse.message);
+      } catch (error) {
+         console.error("Error updating note:", error);
+
+         setStatusMessage("Error", "Unable to update note content.");
+      } finally {
+         saveButton.disabled = false;
+         cancelButton.disabled = false;
+      }
+   });
+
+   // --------------------------------------------------
+   // Select note
+   // --------------------------------------------------
+
+   item.addEventListener("click", (event) => {
+      // Don't select the note when interacting with controls
+      if (event.target.closest("button, textarea, input, select, a")) {
+         return;
+      }
+
       document.querySelectorAll(".note-item.selected").forEach((selected) => {
          selected.classList.remove("selected");
       });

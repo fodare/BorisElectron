@@ -602,6 +602,90 @@ function deleteNoteFromFile(noteId, masterPassword, saltHex) {
    }
 }
 
+function updateNoteContentInFile(noteId, noteText, masterPassword, saltHex) {
+   const readResult = readNotesFromFile();
+
+   if (!readResult.success) {
+      return {
+         success: false,
+         message: "Failed to read notes from file.",
+      };
+   }
+
+   const keyResult = deriveKeyFromMasterpassword(masterPassword, saltHex);
+
+   if (!keyResult.success) {
+      return {
+         success: false,
+         message: "Failed to derive encryption key.",
+      };
+   }
+
+   const decryptedNotes = readResult.data
+      .map((entry) => {
+         const decrypted = decryptContent(entry.iv, entry.data, keyResult.data);
+
+         if (!decrypted.success) {
+            return null;
+         }
+
+         try {
+            return JSON.parse(decrypted.data);
+         } catch {
+            return null;
+         }
+      })
+      .filter(Boolean);
+
+   const noteExists = decryptedNotes.some((note) => note.noteId === noteId);
+
+   if (!noteExists) {
+      return {
+         success: false,
+         message: "Note not found.",
+      };
+   }
+
+   const updatedNotes = decryptedNotes.map((note) => {
+      if (note.noteId !== noteId) {
+         return note;
+      }
+
+      return {
+         ...note,
+         noteText: noteText,
+      };
+   });
+
+   const encryptedNotes = updatedNotes.map((note) => {
+      const encrypted = encryptContent(JSON.stringify(note), keyResult.data);
+
+      if (!encrypted.success) {
+         throw new Error("Failed to re-encrypt note.");
+      }
+
+      return JSON.parse(encrypted.encryptedContent);
+   });
+
+   try {
+      fs.writeFileSync(
+         NOTES_FILE,
+         JSON.stringify(encryptedNotes, null, 3),
+         "utf8",
+      );
+
+      return {
+         success: true,
+         message: "Note updated successfully.",
+      };
+   } catch (error) {
+      return {
+         success: false,
+         message: "Failed to write updated notes file.",
+      };
+   }
+}
+
 export {
    masterPasswordExist,
    encryptValidationToken,
@@ -622,4 +706,5 @@ export {
    writeNoteToFile,
    searchNotesByTitle,
    deleteNoteFromFile,
+   updateNoteContentInFile,
 };

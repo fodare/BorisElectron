@@ -21,6 +21,7 @@ import {
    writeNoteToFile,
    searchNotesByTitle,
    deleteNoteFromFile,
+   updateNoteContentInFile,
 } from "./Scripts/credentials.js";
 import { setUpAppMenu } from "./Scripts/appMenus.js";
 import { json } from "stream/consumers";
@@ -635,6 +636,36 @@ ipcMain.handle("delete-note", (event, noteId) => {
    }
 
    return deleteNoteFromFile(noteId, sessionMasterPassword, sessionKey);
+});
+
+ipcMain.handle("update-note-content", (event, { noteId, noteText }) => {
+   if (!sessionMasterPassword || !sessionKey) {
+      return {
+         success: false,
+         message: "Error updating note. Master password not in session!",
+      };
+   }
+
+   if (!noteId) {
+      return {
+         success: false,
+         message: "Note ID is required.",
+      };
+   }
+
+   if (typeof noteText !== "string" || !noteText.trim()) {
+      return {
+         success: false,
+         message: "Note content cannot be empty.",
+      };
+   }
+
+   return updateNoteContentInFile(
+      noteId,
+      noteText,
+      sessionMasterPassword,
+      sessionKey,
+   );
 });
 
 // #endregion

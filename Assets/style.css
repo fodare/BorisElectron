@@ -346,6 +346,22 @@ body{
    content: "⌃";
 }
 
+.note-body-container {
+   width: 100%;
+}
+
+.note-edit-text {
+   width: 100%;
+   resize: vertical;
+   cursor: text;
+   pointer-events: auto;
+}
+
+.note-actions {
+   display: flex;
+   gap: 0.5rem;
+}
+
 
 /* Media styling */
 @media (min-width: 768px) {

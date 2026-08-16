@@ -88,5 +88,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.invoke("search-notes", searchTitle),
 
    deleteNote: (noteId) => ipcRenderer.invoke("delete-note", noteId),
+   updateNoteContent: (noteId, noteText) =>
+      ipcRenderer.invoke("update-note-content", {
+         noteId,
+         noteText,
+      }),
    // #endregion
 });
