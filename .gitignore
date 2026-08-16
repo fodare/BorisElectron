@@ -148,3 +148,4 @@ local.txt
 # Local test results
 test-results/*
 playwright-report/*
+snapcraft_login_file_Aug_2026.txt
