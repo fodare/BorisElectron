@@ -575,8 +575,7 @@ ipcMain.handle("read-saved-notes", (event) => {
    };
 });
 
-ipcMain.handle("record-notes", async (event, { notesData }) => {
-   console.log(JSON.stringify(notesData));
+ipcMain.handle("record-notes", async (event, { noteData }) => {
    if (!sessionMasterPassword || !sessionKey) {
       return {
          success: false,
@@ -584,15 +583,13 @@ ipcMain.handle("record-notes", async (event, { notesData }) => {
       };
    }
 
-   const noteInfo = JSON.stringify(notesData);
+   const noteInfo = JSON.stringify(noteData);
    let encryptionKey = deriveKeyFromMasterpassword(
       sessionMasterPassword,
       sessionKey,
    );
 
    let encryptedData = encryptContent(noteInfo, encryptionKey.data);
-   //console.log(noteInfo);
-   //console.log(encryptedData);
    if (!encryptedData.success) {
       return {
          sucess: false,
@@ -603,7 +600,7 @@ ipcMain.handle("record-notes", async (event, { notesData }) => {
    const parsedContent = JSON.parse(encryptedData.encryptedContent);
    const isNoteRecorded = writeNoteToFile(parsedContent);
    if (isNoteRecorded.success) {
-      return { sucess: true, message: isNoteRecorded.message };
+      return { success: true, message: isNoteRecorded.message };
    } else {
       return { success: false, message: isNoteRecorded.message };
    }
