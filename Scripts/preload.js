@@ -84,5 +84,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
    // region Notes listeners
    readSavedNotes: () => ipcRenderer.invoke("read-saved-notes"),
    recordNote: (noteData) => ipcRenderer.invoke("record-notes", { noteData }),
+   searchNotes: (searchTitle) =>
+      ipcRenderer.invoke("search-notes", searchTitle),
+
+   deleteNote: (noteId) => ipcRenderer.invoke("delete-note", noteId),
    // #endregion
 });
